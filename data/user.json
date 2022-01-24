@@ -1,0 +1,12 @@
+{
+    "ID" : "",
+    "seleccion" : [
+        "ID",
+        "StatusConfirmacion"
+    ],
+    "respuestas" : {
+        "nivel" : "",
+        "reto" : "",
+        "seleccion" : ""
+    }
+}
