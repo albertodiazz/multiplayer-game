@@ -11,7 +11,7 @@ from lib import json
 from lib import queue
 from lib import pd
 from lib import funcionesJugador
-
+from lib import update_data
 
 app = Flask(__name__, template_folder=c.DIR_INDEX)
 socketio = SocketIO(app, async_mode=c.ASYNC_MODE)
@@ -74,18 +74,18 @@ def userUnirme(jsonMsg):
         if len(msg['ID']) >= 0:
 
             # Aqui ejecutamos la funcion
-            data_copy = pd.DataFrame([])
-            data, players, numJug = funcionesJugador.create_player(msg['ID'])
-            data_copy = data
+            # data_copy = pd.DataFrame([])
+            funcionesJugador.create_player(msg['ID'])
+            # data_copy = data
             # TEST= aun no lo probamos
             # Lo que hacemos es comprobar que nuestro cue siempre este limpio
             # y asi solo subir la ultima version de nuestra data
-            while True:
-                if work_queue.empty():
-                    work_queue.put(data_copy)
-                    break
-                else:
-                    work_queue.get()
+            # while True:
+            #     if work_queue.empty():
+            #         work_queue.put(data_copy)
+            #         break
+            #     else:
+            #         work_queue.get()
 
             app.logger.info({'userUnirme': {'ID': msg['ID']}})
         else:
@@ -121,14 +121,22 @@ def userSeleccion(jsonMsg):
                 # correr la funcion en back como algo general
                 # TEST= Aun esta incompleta ya que falta la opcion de data
                 #       en seleccionDePersonaje()
-                if msg['seleccion'][0]:
+                players = pd.read_csv(c.DIR_DATA+'info_sesion.csv',
+                                      index_col=0)
+                seleccion = int(msg['seleccion'][0])
+                if msg['seleccion'][1] == 'True':
                     print('El jugador ha confirmado')
                     funcionesJugador.seleccionDePersonaje(msg['ID'],
-                                                          msg['seleccion'][0],
+                                                          seleccion,
+                                                          players,
                                                           True)
+
+                    update_data.update_info_jugador()
                 else:
                     funcionesJugador.seleccionDePersonaje(msg['ID'],
-                                                          msg['seleccion'][0])
+                                                          seleccion,
+                                                          players)
+                    update_data.update_info_jugador()
 
                 app.logger.info({'userSeleccion': {'ID': msg['ID']}})
             else:

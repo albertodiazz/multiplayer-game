@@ -2,7 +2,7 @@
     <html>
         <head>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
-        
+
         </head>
         <body>
 
@@ -10,21 +10,23 @@
             <button id='btn-unirme' type="button" >Se unio un jugador</button>
             <button id='btn-seleccion' type="button" >Seleccion personjae</button>
             <button id='btn-respuesta' type="button" >Respuesta Set</button>
-            
+
             <script >
-                
+
                 var socket = io();
-                var ID = '0okkwnerjjb0-x';
+                var ID = 'aksdasdlkj-y';
 
                 function start(){
+                    // Solo avanzamos de nivel mas no agregamos el ID
                     let msg = {
                         'ID' : ID
                     }
                     socket.emit("/user/start",JSON.stringify(msg))
                 }
 
-                
+
                 function unirme(){
+                    // Aqui agreagamos el ID
                     let msg = {
                         'ID' : ID
                     }
@@ -35,7 +37,7 @@
                     let msg = {
                         'ID' : ID,
                         'seleccion' : [
-                            '1',
+                            '8',
                             'False'
                         ]
                     }
