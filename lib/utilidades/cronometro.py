@@ -38,7 +38,7 @@ def comparacionTiempos(tiempo, minutos_meta, segundos_meta, emit=None):
     if int(segundos_meta) != 0:
         tiempoGlobal['minutos'] = "%02d" % (int(minutos_meta)-(int(minutos)))
         tiempoGlobal['segundos'] = "%02d" % (int(segundos_meta)-int(segundos))
-        # PENDIENTE = agregar la funcion de socketio para emitir el tiepo
+        # PENDIENTE = agregar al queue
         print(tiempoGlobal)
     elif int(segundos_meta) == 0:
         tiempoGlobal['minutos'] = "%02d" % (int(minutos_meta)-(int(minutos)))

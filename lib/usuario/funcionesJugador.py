@@ -4,43 +4,39 @@ from lib import np
 from lib import c
 from lib.usuario import checkRepeatID
 
-allData = pd.DataFrame([])
-players = []
-
 
 def create_player(ID):
     """ Funcion para crear personajes
     ...............
-    -[No hay un limite de personajes]
-    -safeID ([def]) = [arreglamos ID repetidos]
+    - No hay un limite de personajes
+    - safeID ([def]) = arreglamos ID repetidos
     ...............
     Args:
         ID ([string]): [Id del Jugador en sesion]
 
     Returns:
-        [players ([dataFrame]),allData ([array]), numJugadores ([int])]: [
+        [allData ([dataFrame]), numJugadores ([int])]: [
             .......................................
-            -players = dataFrame,
-            -allData = atributos de la clase,
+            -allData = dataFrame,
             -numJugadores = numero de jugadores
             .......................................
             ]
     """
-    global players
-    global allData
+    players = []
+    allData = pd.read_csv(c.DIR_DATA+'info_sesion.csv', index_col=0)
     players.append(Players.Jugadores())
-    numJugadores = len(players)
     players[len(players)-1].newPlayer(ID)
     allData = allData.append([players[len(players)-1].Datos])
+    numJugadores = len(allData.index)
     try:
         allData, numFix = checkRepeatID.safeID(ID, allData)
         numJugadores = numFix
-        return allData, players, numJugadores
+        allData.to_csv(c.DIR_DATA+'info_sesion.csv')
+        return allData, numJugadores
     except checkRepeatID.no_hay_repetidos:
         print('Todo bien')
-        # BUG=  El numJugadores esta contando todos los que se unen
-        # y no esta depurando los errores
-        return allData, players, numJugadores
+        allData.to_csv(c.DIR_DATA+'info_sesion.csv')
+        return allData, numJugadores
 
 
 def seleccionDePersonaje(ID, ID_Person, data, confirmacion=False):
@@ -61,10 +57,6 @@ def seleccionDePersonaje(ID, ID_Person, data, confirmacion=False):
     getSi = personT.loc[personT.Disponible == 'Si'].index
     estaDisponible = np.any(np.array(getSi == ID_Person))
     habiaElegido = personT.loc[personT.Jugador_ID == ID].index
-    # FIRE= agregar cronometro y funcion de random creo que esto ira
-    # de forma async para implementar esta funcion ya tienes que empezar
-    # a implementar esta funcion en socket io para no mezclar las funciones
-    # dentro de otras funciones y tener mejor control sobre las cosas
     confirmados = personT.loc[personT['Confirmacion'] == 'Confirmado']
     confirResultado = np.any(np.array(confirmados.Jugador_ID == ID))
     if confirResultado:
@@ -101,6 +93,9 @@ def seleccionDePersonaje(ID, ID_Person, data, confirmacion=False):
 
 
 def resetSesion(data):
+    # PENDIENTE = ya no estamos usando arrays ahora todo lo
+    # estamos almacenando en csv, por el momento existen dos
+    # csv info_sesion, Personajes.csv, hay que resetearlos
     """[Funcion para borrar toda la data por sesion]
 
     Args:
@@ -109,7 +104,7 @@ def resetSesion(data):
     Returns:
         [type]: [description]
     """
-    data.drop(data.index, inplace=True)
+    # data.drop(data.index, inplace=True)
     personT = pd.read_csv(c.DIR_DATA+"Personajes.csv", index_col=0)
     personT.drop(personT.columns, axis=1, inplace=True)
     for i in range(1, len(personT.index)+1):
@@ -118,6 +113,4 @@ def resetSesion(data):
         personT.at[str(int(i)), 'Confirmacion'] = 'pendiente'
     personT.dropna(inplace=True)
     personT.to_csv(c.DIR_DATA+"Personajes.csv")
-    # PENDIENTE
-    # [Hay que resetear nuestros arrays por Sesion]
     return {'response': 'Data borrada'}
