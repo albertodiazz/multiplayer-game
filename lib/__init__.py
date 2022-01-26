@@ -15,5 +15,12 @@ from lib import config as c # noqa
 from lib.usuario  import classJugador as Players # noqa
 from lib.usuario import funcionesJugador # noqa
 from lib.usuario import update_data # noqa
+from lib.utilidades import resetAll # noqa
+
+# El modulo de cronometro lo estoy corriendo de
+# manera paralela con threading en app.py
 from lib.utilidades import cronometro # noqa
+# El modulo randon lo estoy ocupando en la funcion
+# cronometro ya que ahi es donde elijo de forma aleatoria
+# una vez que el tiempo se acaba
 from lib.usuario import randomEleccion # noqa

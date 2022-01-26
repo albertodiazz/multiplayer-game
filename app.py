@@ -4,6 +4,8 @@ BUG : al momento de comparar los ID, si el fron manda null no ocurre nada y
 tampoco se levanta el raise
 '''
 import threading
+import requests
+import flask
 from lib import SocketIO, disconnect
 from lib import Flask
 from lib import c
@@ -13,12 +15,14 @@ from lib import pd
 from lib import funcionesJugador
 from lib import cronometro
 from lib import update_data
+from lib import resetAll as reset
 
 app = Flask(__name__, template_folder=c.DIR_INDEX)
 socketio = SocketIO(app, async_mode=c.ASYNC_MODE)
 
 work_queue = queue.Queue()
 thread_runing = False
+
 
 class SocketIOEventos(Exception):
     pass
@@ -43,14 +47,24 @@ else:
 def connect():
     try:
         # Comprobamos conexiones de clientes
-        app.logger.info('Alguien se conecto al servidor')
+        app.logger.info('connect: ',
+                        'Alguien se conecto al servidor: ',
+                        flask.request.sid)
+        # PENDIENTE = atributo get ID
     except TypeError:
         app.logger.info('No hay conexion con el servidor')
         disconnect()
         return
 
 
-# Una vez recibamos el ID de quie sea empezamos la applicacion
+@socketio.on('disconnect')
+def on_disconnect():
+    # PENDIENTE: comprobamos si ya existe en la base de datos
+    print('\n', '<<<<<<<< Alguien se deconecto >>>>>>>')
+    print(flask.request.sid)
+
+
+# Una vez recibamos el ID de quien sea empezamos la applicacion
 @socketio.on('/user/start')
 def userStart(jsonMsg):
     """[Solo funciona para cambiar el video]"""
@@ -73,9 +87,10 @@ def userUnirme(jsonMsg):
     """[Aqui es donde creamos el Jugador]"""
     try:
         msg = json.loads(jsonMsg)
+        print(msg)
         if len(msg['ID']) >= 0:
-
             # Aqui ejecutamos la funcion
+            # Creamos jugador
             funcionesJugador.create_player(msg['ID'])
 
             app.logger.info({'userUnirme': {'ID': msg['ID']}})
@@ -96,6 +111,12 @@ def funcionX():
     return
 
 
+def desconexion():
+    # PENDIENTE: saber cuando el usuario se desconecto
+    # para asi cambiar el status de su conexion
+    return
+
+
 # Aqui el usuario nos envia su eleccion de personaje y confirmacion
 # si no confirma no lo bloqueamos en la base de datos
 @socketio.on('/user/seleccion')
@@ -107,9 +128,10 @@ def userSeleccion(jsonMsg):
             if len(msg['seleccion']) >= 2:
                 ''' Aqui ejecutamos la funcion '''
                 # FIRE
-                # 1.- Agregar temporizador
+                # 1.- Agregar temporizador ---- Listo ----
                 # 2.- Logica de si es mas de un jugador
-                # 3.- Resetear variable global y queue
+                # 3.- Resetear variable global y queue ---- Listo ----
+
                 # El cronometro no es una funcion por jugador entonces debemos
                 # correr la funcion en back como algo general
                 players = pd.read_csv(c.DIR_DATA+'info_sesion.csv',
@@ -132,8 +154,6 @@ def userSeleccion(jsonMsg):
                         # Corremos el cronometro en segundo plano
                         # Seteamos nuestra variable gobal
                         thr1.start()
-                        # PENDIENTE = resetear en algun punto
-                        # la variable global
                         thread_runing = thr1.isAlive()
                         print('<<<<<<<<<<<<<<<<< ', 'Start Cronometro: ',
                               thread_runing, ' >>>>>>>>>>>>>')
@@ -195,11 +215,17 @@ def setRespuestas(jsonMsg):
 # Reseteamos los datos por sesion de usuario
 @socketio.on('/user/resetAll')
 def resetAll(jsonMsg):
+    global thread_runing
     try:
         msg = json.loads(jsonMsg)
         if len(msg['ID']) >= 0:
-            # Aqui ejecutamos la funcion
-            # IMPORTANTE hay que resetar el array de players
+            # Aqui reseteamos todo
+            thread_runing = False
+            work_queue.get()
+            # Aqui reseteamos nuestos csv los cuales son
+            # dos info_sesion.csv, Personajes.csv
+            reset.resetSesion()
+
             app.logger.info({'userStart': {'ID': msg['ID']}})
         else:
             raise SocketIOEventos({
@@ -217,4 +243,3 @@ def runSocketIO():
 if __name__ == '__main__':
     print('Inciando App de Radiografias del Banco de Mexico')
     runSocketIO()
-

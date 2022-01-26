@@ -90,27 +90,3 @@ def seleccionDePersonaje(ID, ID_Person, data, confirmacion=False):
                 return {'response': 'No disponible'}
         else:
             return {'response': 'No existe el ID del Jugador'}
-
-
-def resetSesion(data):
-    # PENDIENTE = ya no estamos usando arrays ahora todo lo
-    # estamos almacenando en csv, por el momento existen dos
-    # csv info_sesion, Personajes.csv, hay que resetearlos
-    """[Funcion para borrar toda la data por sesion]
-
-    Args:
-        data ([dataFrame]): [tabla de Personajes.csv]
-
-    Returns:
-        [type]: [description]
-    """
-    # data.drop(data.index, inplace=True)
-    personT = pd.read_csv(c.DIR_DATA+"Personajes.csv", index_col=0)
-    personT.drop(personT.columns, axis=1, inplace=True)
-    for i in range(1, len(personT.index)+1):
-        personT.at[str(int(i)), 'Disponible'] = 'Si'
-        personT.at[str(int(i)), 'Jugador_ID'] = 'Nada'
-        personT.at[str(int(i)), 'Confirmacion'] = 'pendiente'
-    personT.dropna(inplace=True)
-    personT.to_csv(c.DIR_DATA+"Personajes.csv")
-    return {'response': 'Data borrada'}

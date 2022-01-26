@@ -6,6 +6,15 @@ class Jugadores:
         Clase donde agregamos atributos del Jugador
         siempre que querramos agregar cosas o eliminar msg
         hay que modificar sobre esta clase
+
+        ---------------------------
+        IMPORTANTE: para eliminar la columna tenemos que quitarla manual
+        del csv y quitarla de los atributos.
+        En el caso de agregar esto pasa en automatico y no hay mas que
+        agregarlo como atributo
+        ---------------------------
+
+        TipoDeUsuario: user / player
     """
 
     def __init__(self):
@@ -15,7 +24,9 @@ class Jugadores:
             'StatusConfirmacion': 'null',
             'Nivel': 'null',
             'Reto': 'null',
-            'Seleccion': 'False'
+            'Seleccion': 'False',
+            'StatusConexion': 'On',
+            'TipoDeUsuario': 'user'
         }])
         self.Datos = df
 

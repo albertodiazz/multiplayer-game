@@ -10,11 +10,17 @@
             <button id='btn-unirme' type="button" >Se unio un jugador</button>
             <button id='btn-seleccion' type="button" >Seleccion personjae</button>
             <button id='btn-respuesta' type="button" >Respuesta Set</button>
+            <button id='btn-resetAll' type="button" >Reset All</button>
 
             <script >
 
                 var socket = io();
-                var ID = 'kasdklnad';
+                var ID;
+
+                socket.on("connect",(data) => {
+                    // alert(`${socket.id}, data`)
+                    ID = socket.id
+                });
 
                 function start(){
                     // Solo avanzamos de nivel mas no agregamos el ID
