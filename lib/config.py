@@ -11,3 +11,6 @@ DIR_INDEX = 'D:/trabajo/cocay/ramodelacion_Mide/radioGrafia_BancoCentral/Backend
 # Aqui seteamos el url de la carpeta data
 DIR_DATA = 'data/'
 # USER
+
+# Temporizador hay que expresar los minutos en segundos 2min = 120
+TIME_SECONDS = 30

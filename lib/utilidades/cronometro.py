@@ -1,4 +1,7 @@
+import queue
 import time
+from lib.usuario import randomEleccion
+from lib.usuario import update_data
 
 # NOTA = tal vez no sea necesario esta funcion global revizalo
 # una vez que lo integres con socketIO
@@ -25,6 +28,8 @@ def comparacionTiempos(tiempo, minutos_meta, segundos_meta, emit=None):
     """[Funcion en donde restamos los valores del tiempo meta]
         .......................
         IMPORTANTE aqui usamos la variable global
+        esta funcion nos regresa los minutos y segundos restantes
+        eso se lo tenemos que compartir a front
         .......................
     Args:
         tiempo ([dict]): [minutos y segundos de la funcion cronometro]
@@ -38,7 +43,7 @@ def comparacionTiempos(tiempo, minutos_meta, segundos_meta, emit=None):
     if int(segundos_meta) != 0:
         tiempoGlobal['minutos'] = "%02d" % (int(minutos_meta)-(int(minutos)))
         tiempoGlobal['segundos'] = "%02d" % (int(segundos_meta)-int(segundos))
-        # PENDIENTE = agregar al queue
+        # FIRE = agregar al queue o integracion con socket io
         print(tiempoGlobal)
     elif int(segundos_meta) == 0:
         tiempoGlobal['minutos'] = "%02d" % (int(minutos_meta)-(int(minutos)))
@@ -46,7 +51,7 @@ def comparacionTiempos(tiempo, minutos_meta, segundos_meta, emit=None):
         print(tiempoGlobal)
 
 
-def temporizador(time_in_seconds):
+def temporizador(time_in_seconds, _queue_):
     """[Funcion de temporizador]
         ................................
         Funciona para restar el tiempo, sera utilizada como temporizador en
@@ -79,4 +84,9 @@ def temporizador(time_in_seconds):
         time.sleep(1)
         count += 1
         if count > time_in_seconds:
-            return True
+            print('Se acabo el tiempo')
+            randomEleccion.select_personaje_random()
+            update_data.update_info_jugador()
+            # No importa lo que se envie, solo importa llenar el queue
+            _queue_.put(100)
+            return
