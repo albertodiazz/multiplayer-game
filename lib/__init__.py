@@ -16,6 +16,10 @@ from lib.usuario  import classJugador as Players # noqa
 from lib.usuario import funcionesJugador # noqa
 from lib.usuario import update_data # noqa
 from lib.utilidades import resetAll # noqa
+from lib.usuario import changeTipo # noqa
+from lib.usuario import deletUser # noqa
+from lib.usuario import numeroJugadores # noqa
+
 
 # El modulo de cronometro lo estoy corriendo de
 # manera paralela con threading en app.py

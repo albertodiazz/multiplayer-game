@@ -25,7 +25,6 @@ class Jugadores:
             'Nivel': 'null',
             'Reto': 'null',
             'Seleccion': 'False',
-            'StatusConexion': 'On',
             'TipoDeUsuario': 'user'
         }])
         self.Datos = df

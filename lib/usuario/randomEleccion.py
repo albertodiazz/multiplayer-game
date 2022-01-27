@@ -1,5 +1,6 @@
 import random
 from lib import pd, c
+from lib.usuario import numeroJugadores
 
 
 def select_personaje_random():
@@ -18,8 +19,9 @@ def select_personaje_random():
                 o nos dice que 'No hay disponibles']
     """
     characters = pd.read_csv(c.DIR_DATA+"Personajes.csv", index_col=0)
-    players = pd.read_csv(c.DIR_DATA+'info_sesion.csv', index_col=0)
-
+    # Lo que estoy haciendo aqui es solo seleccionar a los usuarios con
+    # status de players
+    players = numeroJugadores.get_players()
     get_NoDisponibles = characters.loc[characters.Disponible == 'No'].index
     get_Disponibles = characters.drop(get_NoDisponibles)
 
