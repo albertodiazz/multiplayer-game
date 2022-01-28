@@ -32,13 +32,13 @@ def add_levels_automatic():
 def add_retos_automatic():
     open_json = open(c.DIR_DATA+"to_front.json")
     retos = json.load(open_json)
-    count_retos = None
+    count_retos = 0
 
-    count_retos = int(retos['reto']) + 1
-    retos['reto'] = count_retos
+    count_retos = int(retos['reto']['wich']) + 1
+    retos['reto']['wich'] = count_retos
 
-    if count_retos > c.CANTIDAD_NIVELES:
-        retos['reto'] = 0
+    if count_retos > c.CANTIDAD_RETOS:
+        retos['reto']['wich'] = 0
         with open(c.DIR_DATA+"to_front.json", 'w') as f:
             json.dump(retos, f)
             f.close()
@@ -49,6 +49,34 @@ def add_retos_automatic():
 
     open_json.close()
     return {'response': 'Ok add_reto_automaic'}
+
+
+def add_confirmaciones_automatic(nivel_name):
+    """[Esta funcion debebemos ocuparla para
+        todos los niveles que necesiten confirmaciones
+        por parte de todos los jugadores. Lo que hace es agregar
+        de forma automatica al json los jugadores que le han dado
+        ha cofirmar]
+    ..................................................
+    IMPORTANTE si agregas un nivel nuevo recuerda en seguir
+    la estructura del json ['nivel_name']['confirmacion']
+    ..................................................
+    Args:
+        nivel_name ([string]): [nombre del nivel en el json]
+    """
+    # Necesitamos saber de quien viene la confirmacion?
+    # Considero que no ya que no aparece un mensaje especial por jugador
+    open_json = open(c.DIR_DATA+"to_front.json")
+    confirmaciones = json.load(open_json)
+    count_confir = 0
+
+    count_confir = int(confirmaciones['Momentos'][nivel_name]['confirmacion']) + 1 # noqa
+    confirmaciones['Momentos'][nivel_name]['confirmacion'] = count_confir
+
+    with open(c.DIR_DATA+"to_front.json", 'w') as f:
+        json.dump(confirmaciones, f)
+        f.close()
+    open_json.close()
 
 
 def add_levels_manual(msg, value):

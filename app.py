@@ -18,6 +18,7 @@ from lib import resetAll as reset
 from lib import changeTipo
 from lib import deletUser
 from lib import waitMoments
+from lib import numeroJugadores
 from lib import handle_json
 
 app = Flask(__name__, template_folder=c.DIR_INDEX)
@@ -58,7 +59,6 @@ def connect():
         funcionesJugador.create_player(flask.request.sid)
     except TypeError:
         app.logger.info('No hay conexion con el servidor')
-        disconnect()
         return
 
 
@@ -129,38 +129,6 @@ def userUnirme(jsonMsg):
         return
 
 
-@socketio.on('/player/changeStatus')
-def change_player_to_user(jsonMsg):
-    """[Funcion en donde cambiamos al player to user
-        esto significa que pasara de ser un jugador a un
-        usuario nada mas]
-    """
-    # TEST
-    try:
-        msg = json.loads(jsonMsg)
-        if len(msg['ID']) >= 0:
-            # Aqui ejecutamos la funcion
-            changeTipo.change_to_user(msg['ID'])
-            app.logger.info({'userUnirme': {'ID': msg['ID']}})
-        else:
-            raise SocketIOEventos({
-                'userUnirme': 'no recivimos el ID del participante'
-                })
-    except TypeError:
-        return
-
-    return
-
-
-def funcionX():
-    # PENDIENTE = agregar funcion de continuar que funciona como
-    # un cuarto nivel, en el cual tendras que implementar la logica
-    # de si es mas de un jugador o no.
-    # Considero que lo mejor es crear una funcion de logica de cantidad
-    # de jugadores
-    return
-
-
 @socketio.on('/player/seleccion')
 def userSeleccion(jsonMsg):
     try:
@@ -220,6 +188,44 @@ def userSeleccion(jsonMsg):
         return
 
 
+@socketio.on('/momentos/confirmaciones')
+def espera_confirmacion(jsonMsg):
+    """[Aqui es donde esperamos las confirmaciones de
+        los diferentes momentos]"""
+    # FIRE
+    try:
+        msg = json.loads(jsonMsg)
+        if len(msg['Momento']) >= 0:
+            # Aqui ejecutamos la funcion
+            ##########################################
+            '''IMPORTANTE aqui revizamos el modo de juego
+               una vez acabado el temporizador'''
+            ##########################################
+            # GLOBAL
+            if c.THREADS_CRONOMETRO:
+                print('<<<<<<<< Cronometo is running >>>>>>>>>')
+            else:
+                print('<<<<<<<< Cronometo START >>>>>>>>>')
+                _cronometro_ = threading.Thread(target=cronometro.temporizador,
+                                                args=(c.JOIN_SECONDS,
+                                                      work_queue))
+                _cronometro_.start()
+                print('<<<<<<<< Wait Moments >>>>>>>>>')
+                _waitMoments_ = threading.Thread(target=waitMoments.wait_confirmaciones_json, # noqa
+                                                 args=(msg['Momento'],))
+                _waitMoments_.start()
+
+                # GLOBAL
+                c.THREADS_CRONOMETRO = _waitMoments_.isAlive()
+            app.logger.info({'userUnirme': {'ID': msg['ID']}})
+        else:
+            raise SocketIOEventos({
+                'Response': 'no enviaste nada'
+                })
+    except TypeError:
+        return
+
+
 @socketio.on('/player/respuesta')
 def setRespuestas(jsonMsg):
     try:
@@ -227,7 +233,7 @@ def setRespuestas(jsonMsg):
         if len(msg['ID']) >= 0:
             if len(msg['respuestas']) == 4:
                 # Aqi ejecutamos la funcion
-                # FIRE: setear repuestas en los usuarios
+                # PENDIENTE: setear repuestas en los usuarios
                 app.logger.info({'setRespuestas': {'ID': msg['ID']}})
             else:
                 raise SocketIOEventos({
@@ -241,11 +247,35 @@ def setRespuestas(jsonMsg):
         return
 
 
+@socketio.on('/player/changeStatus')
+def change_player_to_user(jsonMsg):
+    """[Funcion en donde cambiamos al player to user
+        esto significa que pasara de ser un jugador a un
+        usuario nada mas]
+    """
+    # TEST
+    try:
+        msg = json.loads(jsonMsg)
+        if len(msg['ID']) >= 0:
+            # Aqui ejecutamos la funcion
+            changeTipo.change_to_user(msg['ID'])
+            app.logger.info({'userUnirme': {'ID': msg['ID']}})
+        else:
+            raise SocketIOEventos({
+                'userUnirme': 'no recivimos el ID del participante'
+                })
+    except TypeError:
+        return
+
+    return
+
+
 @socketio.on('/sesion/resetAll')
 def resetAll(jsonMsg):
     try:
         msg = json.loads(jsonMsg)
         if len(msg['ID']) >= 0:
+            # FIRE: recuerda en resetear el json a su estado original
             # Aqui reseteamos Personajes.csv
             reset.resetSesion()
             # Aqui reseteamos queue y thread

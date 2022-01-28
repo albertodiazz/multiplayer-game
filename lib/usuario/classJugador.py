@@ -16,7 +16,10 @@ class Jugadores:
 
         TipoDeUsuario: user / player
     """
-
+    # FIRE ya no creo que sea necesario los atributos de nivel, reto
+    # ya que estos son variables generales que no importa la situacion
+    # por jugador.Seleccion tampoco importa ya que siempre tendran las
+    # mismas respuestas o todos estan mal o todos estan bien, eso es todo
     def __init__(self):
         df = pd.DataFrame([{
             'ID': 'null',
