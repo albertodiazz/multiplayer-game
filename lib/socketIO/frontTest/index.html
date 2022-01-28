@@ -47,7 +47,7 @@
                             'False'
                         ]
                     }
-                    socket.emit("/user/seleccion",JSON.stringify(msg))
+                    socket.emit("/player/seleccion",JSON.stringify(msg))
                 }
 
                 function respuesta(){
@@ -59,14 +59,14 @@
                             'seleccion' : 2
                         }
                     }
-                    socket.emit("/user/respuesta",JSON.stringify(msg))
+                    socket.emit("/player/respuesta",JSON.stringify(msg))
                 }
 
                 function resetAll(){
                     let msg = {
                         'ID' : ID
                     }
-                    socket.emit("/user/resetAll",JSON.stringify(msg))
+                    socket.emit("/sesion/resetAll",JSON.stringify(msg))
                 }
 
                 document.getElementById('btn-start').onclick = start

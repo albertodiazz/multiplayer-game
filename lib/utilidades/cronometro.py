@@ -1,11 +1,6 @@
-import queue
 import time
-from lib.usuario import randomEleccion
-from lib.usuario import update_data
-
-# NOTA = tal vez no sea necesario esta funcion global revizalo
-# una vez que lo integres con socketIO
-tiempoGlobal = {'minutos': 0, 'segundos': 0}
+from lib.usuario import numeroJugadores
+from lib import c
 
 
 def convert(seconds):
@@ -41,14 +36,16 @@ def comparacionTiempos(tiempo, minutos_meta, segundos_meta, emit=None):
     minutos = "%02d" % (tiempo['minutos'])
     segundos = "%02d" % (tiempo['segundos'])
     if int(segundos_meta) != 0:
-        tiempoGlobal['minutos'] = "%02d" % (int(minutos_meta)-(int(minutos)))
-        tiempoGlobal['segundos'] = "%02d" % (int(segundos_meta)-int(segundos))
-        # FIRE = agregar al queue o integracion con socket io
-        print(tiempoGlobal)
+        # GLOBAL
+        c.TIEMPO_GLOBAL['minutos'] = "%02d" % (int(minutos_meta)-(int(minutos))) # noqa
+        c.TIEMPO_GLOBAL['segundos'] = "%02d" % (int(segundos_meta)-int(segundos)) # noqa
+        # PENDIENTE = agregar al queue o integracion con socket io
+        print(c.TIEMPO_GLOBAL)
     elif int(segundos_meta) == 0:
-        tiempoGlobal['minutos'] = "%02d" % (int(minutos_meta)-(int(minutos)))
-        tiempoGlobal['segundos'] = "%02d" % (int(59)-int(segundos))
-        print(tiempoGlobal)
+        # GLOBAL
+        c.TIEMPO_GLOBAL['minutos'] = "%02d" % (int(minutos_meta)-(int(minutos)))
+        c.TIEMPO_GLOBAL['segundos'] = "%02d" % (int(59)-int(segundos))
+        print(c.TIEMPO_GLOBAL)
 
 
 def temporizador(time_in_seconds, _queue_):
@@ -64,6 +61,10 @@ def temporizador(time_in_seconds, _queue_):
     Returns:
         [array]: [regresamos dos strings]
     """
+    # GLOBAL
+    ########################################
+    c.CRONOMETRO = 'PLAY'
+    ########################################
     minutos_meta, segundos_meta = convert(time_in_seconds)
     count = 0
     tiempo = {'minutos': 0, 'segundos': -1}
@@ -83,10 +84,18 @@ def temporizador(time_in_seconds, _queue_):
         # print("%02d:%02d" % (tiempo['minutos'], tiempo['segundos']))
         time.sleep(1)
         count += 1
-        if count > time_in_seconds:
-            print('Se acabo el tiempo')
-            randomEleccion.select_personaje_random()
-            update_data.update_info_jugador()
-            # No importa lo que se envie, solo importa llenar el queue
-            _queue_.put(100)
+        if count > time_in_seconds or c.CRONOMETRO == 'STOP':
+            '''Se acabo el tiempo'''
+            # GLOBAL
+            ########################################
+            c.TIEMPO_GLOBAL = {'minutos': 0, 'segundos': 0}
+            c.THREADS_CRONOMETRO = False
+            c.CRONOMETRO = 'STOP'
+            #######################################
+            numJ = numeroJugadores.get_players()
+
+            if len(numJ.index) < 2:
+                c.MODO_DE_JUEGO = 'Solo'
+            else:
+                c.MODO_DE_JUEGO = 'Multijugador'
             return

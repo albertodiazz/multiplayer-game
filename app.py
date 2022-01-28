@@ -17,12 +17,13 @@ from lib import update_data
 from lib import resetAll as reset
 from lib import changeTipo
 from lib import deletUser
+from lib import waitMoments
+from lib import handle_json
 
 app = Flask(__name__, template_folder=c.DIR_INDEX)
 socketio = SocketIO(app, async_mode=c.ASYNC_MODE)
 
 work_queue = queue.Queue()
-thread_runing = False
 
 
 class SocketIOEventos(Exception):
@@ -46,6 +47,7 @@ else:
 
 @socketio.on('connect')
 def connect():
+    # Aqui no importa si son dos o mas jugadores
     try:
         # Comprobamos conexiones de clientes
         app.logger.info('connect: ',
@@ -72,10 +74,11 @@ def on_disconnect():
         return
 
 
-# Una vez recibamos el ID de quien sea empezamos la applicacion
 @socketio.on('/user/start')
 def userStart(jsonMsg):
     """[Solo funciona para cambiar el video]"""
+    # Una vez recibamos el ID de quien sea empezamos la applicacion
+    # Aqui no importa si son dos o mas jugadores
     try:
         msg = json.loads(jsonMsg)
         if len(msg['ID']) >= 0:
@@ -89,16 +92,34 @@ def userStart(jsonMsg):
         return
 
 
-# Aqui es donde manejamos los usuarios que se unan al juego
 @socketio.on('/user/unirme')
 def userUnirme(jsonMsg):
     """[Aqui es donde creamos el Jugador]"""
+    # Aqui es donde manejamos los usuarios que se unan al juego
     try:
         msg = json.loads(jsonMsg)
-        print(msg)
         if len(msg['ID']) >= 0:
             # Aqui ejecutamos la funcion
             changeTipo.change_to_player(msg['ID'])
+            ##########################################
+            '''IMPORTANTE aqui revizamos el modo de juego
+               una vez acabado el temporizador'''
+            ##########################################
+            # GLOBAL
+            if c.THREADS_CRONOMETRO:
+                print('<<<<<<<< Cronometo is running >>>>>>>>>')
+            else:
+                print('<<<<<<<< Cronometo START >>>>>>>>>')
+                _cronometro_ = threading.Thread(target=cronometro.temporizador,
+                                                args=(c.JOIN_SECONDS,
+                                                      work_queue))
+                _cronometro_.start()
+                print('<<<<<<<< Wait Moments >>>>>>>>>')
+                _waitMoments_ = threading.Thread(target=waitMoments.wait_join_players) # noqa
+                _waitMoments_.start()
+
+                # GLOBAL
+                c.THREADS_CRONOMETRO = _waitMoments_.isAlive()
             app.logger.info({'userUnirme': {'ID': msg['ID']}})
         else:
             raise SocketIOEventos({
@@ -106,6 +127,29 @@ def userUnirme(jsonMsg):
                 })
     except TypeError:
         return
+
+
+@socketio.on('/player/changeStatus')
+def change_player_to_user(jsonMsg):
+    """[Funcion en donde cambiamos al player to user
+        esto significa que pasara de ser un jugador a un
+        usuario nada mas]
+    """
+    # TEST
+    try:
+        msg = json.loads(jsonMsg)
+        if len(msg['ID']) >= 0:
+            # Aqui ejecutamos la funcion
+            changeTipo.change_to_user(msg['ID'])
+            app.logger.info({'userUnirme': {'ID': msg['ID']}})
+        else:
+            raise SocketIOEventos({
+                'userUnirme': 'no recivimos el ID del participante'
+                })
+    except TypeError:
+        return
+
+    return
 
 
 def funcionX():
@@ -117,66 +161,51 @@ def funcionX():
     return
 
 
-# Aqui el usuario nos envia su eleccion de personaje y confirmacion
-# si no confirma no lo bloqueamos en la base de datos
-@socketio.on('/user/seleccion')
+@socketio.on('/player/seleccion')
 def userSeleccion(jsonMsg):
-    global thread_runing
     try:
         msg = json.loads(jsonMsg)
         if len(msg['ID']) >= 0:
             if len(msg['seleccion']) >= 2:
                 ''' Aqui ejecutamos la funcion '''
-                # FIRE
-                # 1.- Agregar temporizador ---- Listo ----
-                # 2.- Logica de si es mas de un jugador
-                # 3.- Resetear variable global y queue ---- Listo ----
-
-                # El cronometro no es una funcion por jugador entonces debemos
-                # correr la funcion en back como algo general
+                # PENDIENTE
+                # 1.- Logica de si es mas de un jugador
+                # esto ya lo tenemos a nivel variable global
                 players = pd.read_csv(c.DIR_DATA+'info_sesion.csv',
                                       index_col=0)
                 seleccion = int(msg['seleccion'][0])
 
-                if work_queue.empty():
-                    # Quiere decir que el queue esta vacio ya que el
-                    # temporizador aun no termina
-                    thr1 = threading.Thread(target=cronometro.temporizador,
-                                            args=(c.TIME_SECONDS,
-                                                  work_queue))
-
-                    if thread_runing:
-                        # Revizamos que no este corriendo el Thread
-                        print('<<<<<<<<<<<<<<<<< ',
-                              'Cronometro is running', ' >>>>>>>>>')
-                    else:
-                        # Si no esta corriendo
-                        # Corremos el cronometro en segundo plano
-                        # Seteamos nuestra variable gobal
-                        thr1.start()
-                        thread_runing = thr1.isAlive()
-                        print('<<<<<<<<<<<<<<<<< ', 'Start Cronometro: ',
-                              thread_runing, ' >>>>>>>>>>>>>')
-
-                    if msg['seleccion'][1] == 'True':
-                        # No han mandado confirmacion
-                        funcionesJugador.seleccionDePersonaje(msg['ID'],
-                                                              seleccion,
-                                                              players,
-                                                              True)
-
-                    else:
-                        funcionesJugador.seleccionDePersonaje(msg['ID'],
-                                                              seleccion,
-                                                              players)
-                    # Actualizamos la data main que info_sesion.csv
-                    update_data.update_info_jugador()
+                _cronometro_ = threading.Thread(target=cronometro.temporizador,
+                                                args=(c.TIME_SECONDS,
+                                                      work_queue))
+                # GLOBAL
+                if c.THREADS_CRONOMETRO:
+                    # Revizamos que no este corriendo el Thread
+                    print('<<<<<<<<<<<<<<<<< ',
+                          'Cronometro is running', ' >>>>>>>>>')
                 else:
-                    # LLegamos a este punto cuando nuestro tiempo se ha acabado
-                    # la forma de resetear el cronometro es limpiando el queu
-                    # work_queue.get()
-                    app.logger.info('Ya no hay tiempo de eleccion')
-                    return {'response': 'Resetea el temporizador'}
+                    # Si no esta corriendo
+                    # Corremos el cronometro en segundo plano
+                    # Seteamos nuestra variable gobal
+                    _cronometro_.start()
+                    # GLOBAL
+                    c.THREADS_CRONOMETRO = _cronometro_.isAlive()
+                    print('<<<<<<<<<<<<<<<<< ', 'Start Cronometro: ',
+                          c.THREADS_CRONOMETRO, ' >>>>>>>>>>>>>')
+
+                if msg['seleccion'][1] == 'True':
+                    # No han mandado confirmacion
+                    funcionesJugador.seleccionDePersonaje(msg['ID'],
+                                                          seleccion,
+                                                          players,
+                                                          True)
+
+                else:
+                    funcionesJugador.seleccionDePersonaje(msg['ID'],
+                                                          seleccion,
+                                                          players)
+                # Actualizamos la data main de info_sesion.csv
+                update_data.update_info_jugador()
 
                 app.logger.info({'userSeleccion': {'ID': msg['ID']}})
             else:
@@ -191,15 +220,14 @@ def userSeleccion(jsonMsg):
         return
 
 
-# Aqui seteamos las respuestas por reto y jugador
-@socketio.on('/user/respuesta')
+@socketio.on('/player/respuesta')
 def setRespuestas(jsonMsg):
     try:
         msg = json.loads(jsonMsg)
         if len(msg['ID']) >= 0:
             if len(msg['respuestas']) == 4:
                 # Aqi ejecutamos la funcion
-                # PENDIENTE: setear repuestas en los usuarios
+                # FIRE: setear repuestas en los usuarios
                 app.logger.info({'setRespuestas': {'ID': msg['ID']}})
             else:
                 raise SocketIOEventos({
@@ -213,18 +241,16 @@ def setRespuestas(jsonMsg):
         return
 
 
-# Reseteamos los datos por sesion de usuario
-@socketio.on('/user/resetAll')
+@socketio.on('/sesion/resetAll')
 def resetAll(jsonMsg):
-    global thread_runing
     try:
         msg = json.loads(jsonMsg)
         if len(msg['ID']) >= 0:
-            # Aqui reseteamos queue y thread
-            thread_runing = False
-            work_queue.get()
             # Aqui reseteamos Personajes.csv
             reset.resetSesion()
+            # Aqui reseteamos queue y thread
+            c.THREADS_CRONOMETRO = False
+            # work_queue.get()
 
             app.logger.info({'userStart': {'ID': msg['ID']}})
         else:

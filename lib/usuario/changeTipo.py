@@ -16,3 +16,20 @@ def change_to_player(_ID_):
     except KeyError:
         print('El usuario no existe:')
         pass
+
+
+def change_to_user(_ID_):
+    # Aqui cambiamos el tipo de usuario a user
+    # TEST: falta testear
+    player = pd.read_csv(c.DIR_DATA+'info_sesion.csv', index_col=0)
+
+    try:
+        if player.loc[_ID_].TipoDeUsuario == 'player':
+            player.at[_ID_, 'TipoDeUsuario'] = 'user'
+            player.to_csv(c.DIR_DATA+'info_sesion.csv')
+            return {'response': 'Se cambio a user'}
+        else:
+            return {'response': 'Ya es un user'}
+    except KeyError:
+        print('El usuario no existe:')
+        pass
