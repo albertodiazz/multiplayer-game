@@ -139,6 +139,8 @@ def userSeleccion(jsonMsg):
                 # PENDIENTE
                 # 1.- Logica de si es mas de un jugador
                 # esto ya lo tenemos a nivel variable global
+                # FIRE aqui el cronometro empieza desde el principio
+                # antes de que le presionen al boton
                 players = pd.read_csv(c.DIR_DATA+'info_sesion.csv',
                                       index_col=0)
                 seleccion = int(msg['seleccion'][0])
@@ -192,7 +194,6 @@ def userSeleccion(jsonMsg):
 def espera_confirmacion(jsonMsg):
     """[Aqui es donde esperamos las confirmaciones de
         los diferentes momentos]"""
-    # FIRE
     try:
         msg = json.loads(jsonMsg)
         if len(msg['Momento']) >= 0:
@@ -201,6 +202,12 @@ def espera_confirmacion(jsonMsg):
             '''IMPORTANTE aqui revizamos el modo de juego
                una vez acabado el temporizador'''
             ##########################################
+            # No nos importa cuantas veces lo llamen aqui ponemos
+            # un append para el json y en back lo revizamos todo el tiempo
+            # revizando que corresponda con el numero de
+            # participantes por sesion
+            handle_json.add_confirmaciones_automatic(msg['Momento'])
+
             # GLOBAL
             if c.THREADS_CRONOMETRO:
                 print('<<<<<<<< Cronometo is running >>>>>>>>>')
@@ -217,7 +224,6 @@ def espera_confirmacion(jsonMsg):
 
                 # GLOBAL
                 c.THREADS_CRONOMETRO = _waitMoments_.isAlive()
-            app.logger.info({'userUnirme': {'ID': msg['ID']}})
         else:
             raise SocketIOEventos({
                 'Response': 'no enviaste nada'

@@ -10,6 +10,7 @@
             <button id='btn-unirme' type="button" >Se unio un jugador</button>
             <button id='btn-seleccion' type="button" >Seleccion personjae</button>
             <button id='btn-respuesta' type="button" >Respuesta Set</button>
+            <button id='btn-confirmar' type="button" >Confirmar</button>
             <button id='btn-resetAll' type="button" >Reset All</button>
 
             <script >
@@ -68,11 +69,19 @@
                     }
                     socket.emit("/sesion/resetAll",JSON.stringify(msg))
                 }
+                function Confirmar(){
+                    let msg = {
+                        'Momento' : 'nivel_instrucciones'
+                    }
+                    socket.emit("/momentos/confirmaciones",JSON.stringify(msg))
+                }
+
 
                 document.getElementById('btn-start').onclick = start
                 document.getElementById('btn-unirme').onclick = unirme
                 document.getElementById('btn-seleccion').onclick = seleccion
                 document.getElementById('btn-respuesta').onclick = respuesta
+                document.getElementById('btn-confirmar').onclick = Confirmar
                 document.getElementById('btn-resetAll').onclick = resetAll
             </script>
         </body>

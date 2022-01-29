@@ -24,24 +24,28 @@ THREADS_CRONOMETRO = False
 CRONOMETRO = 'STOP'
 # En este variable obetnemos nuestro contador de mayor a menor
 TIEMPO_GLOBAL = {'minutos': 0, 'segundos': 0}
+####################################
+# Modo de Juego "Solo/MultiJugador"
+# Esto se debe seter de forma automatica no
+# es necesario cambiarlo manual
+MODO_DE_JUEGO = 'Multijugador'
+####################################
 '''
 ..............................
         SETUP JUEGO
 ..............................
 '''
 ####################################
-# Modo de Juego "Solo/MultiJugador"
-MODO_DE_JUEGO = 'Multijugador'
-####################################
+''' Tiempo'''
 # Tiempos expresado en segundos si quieres 2min serian 120s
 # Temporizador para seleccionar personajes
 TIME_SECONDS = 30
-####################################
 # Temporizador para unirse al juego
 JOIN_SECONDS = 10
-####################################
+# Segundos de momentos
 MOMENTOS_SECONDS = 10
 ####################################
+''' Niveles '''
 # Cantidad de Niveles recuerda que se cuenta desde el 0
 # ejemplo: 6 seria [0,1,2,3,4,5], etc...
 CANTIDAD_NIVELES = 7
