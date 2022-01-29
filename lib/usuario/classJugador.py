@@ -17,9 +17,12 @@ class Jugadores:
         TipoDeUsuario: user / player
     """
     # FIRE ya no creo que sea necesario los atributos de nivel, reto
-    # ya que estos son variables generales que no importa la situacion
-    # por jugador.Seleccion tampoco importa ya que siempre tendran las
-    # mismas respuestas o todos estan mal o todos estan bien, eso es todo
+    # ya que estos son variables generales. No importa la situacion
+    # por jugador. Creo que lo que podemos utilizar es el reto para setear
+    # las respuestas y comparar que todos hayan contestado lo mismo
+    # UPDATE: con lo que se hizo en wait moment comparacion de respuestas
+    # tal vez nada de lo anterior sea necesario dependeara de que me digan
+    # en cuanto a si es posible cambiar las respuestas
     def __init__(self):
         df = pd.DataFrame([{
             'ID': 'null',

@@ -136,10 +136,9 @@ def userSeleccion(jsonMsg):
         if len(msg['ID']) >= 0:
             if len(msg['seleccion']) >= 2:
                 ''' Aqui ejecutamos la funcion '''
-                # PENDIENTE
                 # 1.- Logica de si es mas de un jugador
                 # esto ya lo tenemos a nivel variable global
-                # FIRE aqui el cronometro empieza desde el principio
+                # PENDIENTE aqui el cronometro empieza desde el principio
                 # antes de que le presionen al boton
                 players = pd.read_csv(c.DIR_DATA+'info_sesion.csv',
                                       index_col=0)
@@ -237,10 +236,12 @@ def setRespuestas(jsonMsg):
     try:
         msg = json.loads(jsonMsg)
         if len(msg['ID']) >= 0:
-            if len(msg['respuestas']) == 4:
-                # Aqi ejecutamos la funcion
-                # PENDIENTE: setear repuestas en los usuarios
+            if len(msg['respuestas']) == 2:
+                # FIRE [preguntar al equipo de si es posible cambiar su
+                # respuesta ya que entonces esta logica no sirve]
                 app.logger.info({'setRespuestas': {'ID': msg['ID']}})
+                waitMoments.wait_comparasion_respuestas(msg['respuestas']['reto'], # noqa
+                                                        msg['respuestas']['respuesta']) # noqa
             else:
                 raise SocketIOEventos({
                     msg['ID']: 'Faltan atributos'
@@ -281,13 +282,13 @@ def resetAll(jsonMsg):
     try:
         msg = json.loads(jsonMsg)
         if len(msg['ID']) >= 0:
-            # FIRE: recuerda en resetear el json a su estado original
+            # Reseteamos el Json
+            handle_json.reset()
             # Aqui reseteamos Personajes.csv
             reset.resetSesion()
             # Aqui reseteamos queue y thread
             c.THREADS_CRONOMETRO = False
             # work_queue.get()
-
             app.logger.info({'userStart': {'ID': msg['ID']}})
         else:
             raise SocketIOEventos({

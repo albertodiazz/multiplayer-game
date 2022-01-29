@@ -38,14 +38,3 @@ def update_info_jugador():
 
     players.to_csv(c.DIR_DATA+'info_sesion.csv')
     return players
-
-
-def append_niveles(data, ID, Columna, msg=None):
-    # PENDIENTE = aun no la utilizo
-    if Columna == 'Nivel':
-        if msg is not None:
-            data.at[ID, Columna] += ',' + msg
-            data.at[ID, Columna] = data.loc[ID, Columna].replace("null,", "")
-    else:
-        if msg is not None:
-            data.at[ID, Columna] = msg

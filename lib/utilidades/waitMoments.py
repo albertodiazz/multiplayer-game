@@ -27,12 +27,12 @@ Cliente que es quien decide que nos regresemos al prinicpio de la aplicacion
 ............................................................
 
 [ARGS]
-    wichLevel [int] : Todas las funciones tiene una variable de ese tipo, ahi es
-                      donde seteamos a que nivel apunta nuestra funcion
+    wichLevel [int] : Todas las funciones tiene una variable de ese tipo, ahi
+                      es donde seteamos a que nivel apunta nuestra funcion
 """
 
 
-def wait_join_players(whichLevel= 2):
+def wait_join_players(whichLevel=2):
     # Esperamos a los usuarios que se unen a la sesion de player
     # en base a c.MAX_JUGADORES
     while True:
@@ -67,7 +67,7 @@ def wait_join_players(whichLevel= 2):
             break
 
 
-def wait_confirmacion_characters(whichLevel= 3):
+def wait_confirmacion_characters(whichLevel=3):
     # Revizamos que ya hayan confirmado todos los jugadores
     # su personaje si no se los elegimos de forma random
 
@@ -107,8 +107,80 @@ def wait_confirmacion_characters(whichLevel= 3):
             break
 
 
-def wait_confirmaciones_json(nivel_name, whichLevel= 3):
-    # FIRE
+def wait_comparasion_respuestas(reto, respuesta_player):
+    # FIRE: preguntar si sera posible cambiar respuestas una vez elegidas
+    open_json = open(c.DIR_DATA + "respuestas.json")
+    data_json = json.load(open_json)
+    # Player por sesion
+    players_sesion = numeroJugadores.get_players()
+    num_players = len(players_sesion.index)
+
+    # 1.- Primer momento donde nos sumamos sus respuestas
+    # correctas o incorrectas
+    if data_json[reto].lower() == respuesta_player.lower():
+        '''
+        ........................................
+        RESPUESTAS CORRECTA ADD
+        .......................................
+        '''
+        print('<<<<<< Correcto >>>>>>>>>')
+        add = int(data_json['confirmaciones']['correctas']) + 1
+        data_json['confirmaciones']['correctas'] = add
+        with open(c.DIR_DATA+"respuestas.json", 'w') as f:
+            json.dump(data_json, f)
+            f.close()
+    else:
+        '''
+        ........................................
+        RESPUESTAS INCORRECTA ADD
+        .......................................
+        '''
+        print('<<<<<<<< Incorrecto >>>>>>>>')
+        add = int(data_json['confirmaciones']['incorrectas']) + 1
+        data_json['confirmaciones']['incorrectas'] = add
+        with open(c.DIR_DATA+"respuestas.json", 'w') as f:
+            json.dump(data_json, f)
+            f.close()
+
+    # 2.- Una vez que nos llegue la respuesta del ultimo usuario
+    # comparamos si todos consteron igual
+    getNum_confirm = data_json['confirmaciones']['correctas'] + data_json['confirmaciones']['incorrectas'] # noqa
+    if getNum_confirm >= num_players:
+        # 3.- Solo si contestaron todos igual mandamos a decir si fue
+        # una decision correcta o incorrecta
+        if data_json['confirmaciones']['correctas'] == num_players:
+            print('Todos estan bien')
+            # PENDIENTE [antes de resetear contestar a front]
+            # Reseteamos nuestro Json para el siguiente evento
+            data_json['confirmaciones']['incorrectas'] = 0
+            data_json['confirmaciones']['correctas'] = 0
+            with open(c.DIR_DATA+"respuestas.json", 'w') as f:
+                json.dump(data_json, f)
+                f.close()
+        elif data_json['confirmaciones']['incorrectas'] == num_players:
+            print('Todos estan mal')
+            # PENDIENTE [antes de resetear contestar a front]
+            # Reseteamos nuestro Json para el siguiente evento
+            data_json['confirmaciones']['incorrectas'] = 0
+            data_json['confirmaciones']['correctas'] = 0
+            with open(c.DIR_DATA+"respuestas.json", 'w') as f:
+                json.dump(data_json, f)
+                f.close()
+        else:
+            print('Alguien no contesto igual')
+            # PENDIENTE [antes de resetear contestar a front]
+            # Reseteamos nuestro Json para el siguiente evento
+            data_json['confirmaciones']['incorrectas'] = 0
+            data_json['confirmaciones']['correctas'] = 0
+            with open(c.DIR_DATA+"respuestas.json", 'w') as f:
+                json.dump(data_json, f)
+                f.close()
+
+    open_json.close()
+    return
+
+
+def wait_confirmaciones_json(nivel_name, whichLevel=3):
     # Aqui comprobamos las confirmaciones de los usuarios
     # desde el json, recuerda que la diferencia entre esta funcion
     # y las anteriores es de que aqui no sabes quien confirmo

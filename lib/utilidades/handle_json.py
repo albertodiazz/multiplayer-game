@@ -1,10 +1,10 @@
-from itertools import count
 from lib import json
 from lib import c
-# PENDIENTE
-# consume los datos
-# Depues de notar cambios en la base de datos
-# envialos
+
+'''
+Aqui manejamos todos los mensajes relacions con el json to_front
+hay que recordar que es el json que compartimos con front
+'''
 
 
 def add_levels_automatic():
@@ -34,11 +34,11 @@ def add_retos_automatic():
     retos = json.load(open_json)
     count_retos = 0
 
-    count_retos = int(retos['reto']['wich']) + 1
-    retos['reto']['wich'] = count_retos
+    count_retos = int(retos['reto']['which']) + 1
+    retos['reto']['which'] = count_retos
 
     if count_retos > c.CANTIDAD_RETOS:
-        retos['reto']['wich'] = 0
+        retos['reto']['which'] = 0
         with open(c.DIR_DATA+"to_front.json", 'w') as f:
             json.dump(retos, f)
             f.close()
@@ -98,3 +98,13 @@ def add_levels_manual(msg, value):
     open_json.close()
 
     return
+
+
+def reset():
+    open_reset = open(c.DIR_DATA+"to_front_RESET.json")
+    to_front = json.load(open_reset)
+
+    with open(c.DIR_DATA+"to_front.json", 'w') as f:
+        json.dump(to_front, f)
+        f.close()
+    open_reset.close()

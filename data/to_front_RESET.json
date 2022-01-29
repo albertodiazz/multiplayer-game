@@ -1,0 +1,48 @@
+{
+    "Momentos": {
+        "nivel_instrucciones": {
+            "confirmacion": 0
+        },
+        "nivel_empezamos": {
+            "empezamos" : "Si/No",
+            "confirmacion": 0
+        },
+        "nivel_recuerdas":{
+            "confirmacion": 0
+        }
+    },
+    "level": 0,
+    "players": [""],
+    "characters": [""],
+    "reto": {
+        "which": 0,
+        "respuestas": "iguales/diferentes",
+        "respuestaCorrecta": "true/false"
+    },
+    "retos_respuestas": [
+        {
+            "EsCorrecta" : "true/false",
+            "Respuesta" : "true/false"
+        },
+        {
+            "EsCorrecta" : "true/false",
+            "Respuesta" : "true/false"
+        },
+        {
+            "EsCorrecta" : "true/false",
+            "Respuesta" : "true/false"
+        },
+        {
+            "EsCorrecta" : "true/false",
+            "Respuesta" : "true/false"
+        },
+        {
+            "EsCorrecta" : "true/false",
+            "Respuesta" : "true/false"
+        },
+        {
+            "EsCorrecta" : "true/false",
+            "Respuesta" : "true/false"
+        }
+    ]
+}

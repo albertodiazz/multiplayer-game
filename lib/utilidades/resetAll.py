@@ -3,21 +3,12 @@ from lib import c
 
 
 def resetSesion():
-    """[Funcion para resetear los csv]
+    """[Funcion para resetear el csv de Personajes]
 
     Returns:
         [dict]: [response: Data borrada]
     """
-    # Esto lo dejo comentado ya que solo necesitamos resetear la
-    # tabla de characters
-    # lista_columnas = pd.read_csv(c.DIR_DATA+'info_sesion.csv', index_col=0)
-    # lista_columnas = list(lista_columnas.columns)
-    # info_sesion = pd.DataFrame(columns=lista_columnas)
-    # info_sesion.index.name = 'ID'
-    # info_sesion.dropna(inplace=True)
-    # info_sesion.to_csv(c.DIR_DATA+'info_sesion.csv')
-
-    # NOTA: al realizar cambios en los atributos tienes
+    # NOTA: al realizar cambios en los atributos de Personajes.csv tienes
     # que revizar que sean los mismo a los de la classe
     # del jugador.
     personajes = pd.read_csv(c.DIR_DATA+"Personajes.csv", index_col=0)

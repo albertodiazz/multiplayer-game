@@ -55,9 +55,8 @@
                     let msg = {
                         'ID' : ID,
                         'respuestas' : {
-                            'nivel' : 1,
-                            'reto' : 0,
-                            'seleccion' : 2
+                            'reto' : 'reto0',
+                            'respuesta' : 'Emision de monedas y billetes'
                         }
                     }
                     socket.emit("/player/respuesta",JSON.stringify(msg))
