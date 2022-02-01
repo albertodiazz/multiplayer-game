@@ -3,7 +3,7 @@
 import json
 from lib import c
 from lib import pd
-import json
+from lib.utilidades import whoLeavesCharacters
 from lib.usuario import randomEleccion
 from lib.usuario import update_data
 from lib.utilidades import handle_json
@@ -85,8 +85,8 @@ def wait_confirmacion_characters(whichLevel=3):
                           'Confirmaron todos los jugadores'
                           '>>>>>>>>>>>>>>>>>>>>>>>>>')
                     # Cambiamos de nivel?
-                    randomEleccion.select_personaje_random()
-                    update_data.update_info_jugador()
+                    # randomEleccion.select_personaje_random()
+                    # update_data.update_info_jugador()
                     # GLOBAL
                     c.CRONOMETRO = 'STOP'
                     ##############################
@@ -98,6 +98,7 @@ def wait_confirmacion_characters(whichLevel=3):
             print('<<<<<<<<<<<<<<<<<<<<<<<<',
                   'Cronometro Stop from Wait Players',
                   '>>>>>>>>>>>>>>>>>>>>>>>>>')
+            whoLeavesCharacters.check()
             randomEleccion.select_personaje_random()
             update_data.update_info_jugador()
             ###################################

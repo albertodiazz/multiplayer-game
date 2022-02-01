@@ -157,6 +157,8 @@ def userSeleccion(jsonMsg):
                     # Corremos el cronometro en segundo plano
                     # Seteamos nuestra variable gobal
                     _cronometro_.start()
+                    print('<<<<<<<< Wait Moments >>>>>>>>>')
+                    _waitMoments_ = threading.Thread(target=waitMoments.wait_confirmacion_characters) # noqa
                     # GLOBAL
                     c.THREADS_CRONOMETRO = _cronometro_.isAlive()
                     print('<<<<<<<<<<<<<<<<< ', 'Start Cronometro: ',
@@ -175,6 +177,12 @@ def userSeleccion(jsonMsg):
                                                           players)
                 # Actualizamos la data main de info_sesion.csv
                 update_data.update_info_jugador()
+
+                if _waitMoments_.isAlive():
+                    print('<<<<<< MOMENT is running>>>>>>')
+                else:
+                    print('<<<<<< Start wait moments >>>>>>>')
+                    _waitMoments_.start()
 
                 app.logger.info({'userSeleccion': {'ID': msg['ID']}})
             else:
@@ -237,11 +245,14 @@ def setRespuestas(jsonMsg):
         msg = json.loads(jsonMsg)
         if len(msg['ID']) >= 0:
             if len(msg['respuestas']) == 2:
-                # FIRE [preguntar al equipo de si es posible cambiar su
-                # respuesta ya que entonces esta logica no sirve]
-                app.logger.info({'setRespuestas': {'ID': msg['ID']}})
+                # [Es importante recordar que solo se tienen una oportunidad
+                # de respuesta por momento. Si esta logica la cambian, tienes
+                # que cambiar la forma en la que esta la funcion
+                # y agregar el ID]
                 waitMoments.wait_comparasion_respuestas(msg['respuestas']['reto'], # noqa
                                                         msg['respuestas']['respuesta']) # noqa
+
+                app.logger.info({'setRespuestas': {'ID': msg['ID']}})
             else:
                 raise SocketIOEventos({
                     msg['ID']: 'Faltan atributos'

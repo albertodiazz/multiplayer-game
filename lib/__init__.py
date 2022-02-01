@@ -21,6 +21,7 @@ from lib.usuario import deletUser # noqa
 from lib.usuario import numeroJugadores # noqa
 from lib.utilidades import handle_json # noqa
 from lib.utilidades import waitMoments # noqa
+from lib.utilidades import whoLeavesCharacters # noqa
 
 # El modulo de cronometro lo estoy corriendo de
 # manera paralela con threading en app.py
