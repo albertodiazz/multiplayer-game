@@ -9,8 +9,9 @@
             <button id='btn-start' type="button" >Start</button>
             <button id='btn-unirme' type="button" >Se unio un jugador</button>
             <button id='btn-seleccion' type="button" >Seleccion personjae</button>
+            <button id='btn-confirmarSeleccion' type="button" >Confirmar seleccion</button>
             <button id='btn-respuesta' type="button" >Respuesta Set</button>
-            <button id='btn-confirmar' type="button" >Confirmar</button>
+            <button id='btn-confirmar' type="button" >Confirmar Momentos</button>
             <button id='btn-resetAll' type="button" >Reset All</button>
 
             <script >
@@ -39,12 +40,23 @@
                     }
                     socket.emit("/user/unirme",JSON.stringify(msg))
                 }
-
+                let x = Math.floor((Math.random() * 10) + 1);
                 function seleccion(){
                     let msg = {
                         'ID' : ID,
                         'seleccion' : [
-                            '5',
+                         x.toString(),
+                            'False'
+                        ]
+                    }
+                    socket.emit("/player/seleccion",JSON.stringify(msg))
+                }
+
+                function seleccionConfirmar(){
+                    let msg = {
+                        'ID' : ID,
+                        'seleccion' : [
+                         x.toString(),
                             'False'
                         ]
                     }
@@ -79,6 +91,7 @@
                 document.getElementById('btn-start').onclick = start
                 document.getElementById('btn-unirme').onclick = unirme
                 document.getElementById('btn-seleccion').onclick = seleccion
+                document.getElementById('btn-confirmarSeleccion').onclick = seleccionConfirmar
                 document.getElementById('btn-respuesta').onclick = respuesta
                 document.getElementById('btn-confirmar').onclick = Confirmar
                 document.getElementById('btn-resetAll').onclick = resetAll

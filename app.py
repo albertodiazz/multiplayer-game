@@ -18,8 +18,8 @@ from lib import resetAll as reset
 from lib import changeTipo
 from lib import deletUser
 from lib import waitMoments
-from lib import numeroJugadores
 from lib import handle_json
+from lib import updateModoDeJuego
 
 app = Flask(__name__, template_folder=c.DIR_INDEX)
 socketio = SocketIO(app, async_mode=c.ASYNC_MODE)
@@ -136,8 +136,6 @@ def userSeleccion(jsonMsg):
         if len(msg['ID']) >= 0:
             if len(msg['seleccion']) >= 2:
                 ''' Aqui ejecutamos la funcion '''
-                # 1.- Logica de si es mas de un jugador
-                # esto ya lo tenemos a nivel variable global
                 # PENDIENTE aqui el cronometro empieza desde el principio
                 # antes de que le presionen al boton
                 players = pd.read_csv(c.DIR_DATA+'info_sesion.csv',
@@ -177,12 +175,19 @@ def userSeleccion(jsonMsg):
                                                           players)
                 # Actualizamos la data main de info_sesion.csv
                 update_data.update_info_jugador()
-
-                if _waitMoments_.isAlive():
-                    print('<<<<<< MOMENT is running>>>>>>')
-                else:
-                    print('<<<<<< Start wait moments >>>>>>>')
-                    _waitMoments_.start()
+                try:
+                    if _waitMoments_.isAlive():
+                        print('<<<<<< MOMENT is running>>>>>>')
+                    else:
+                        print('<<<<<< Start wait moments >>>>>>>')
+                        _waitMoments_.start()
+                except TypeError:
+                    '''El error que ocurre es que solo llamamos una vez el cronometro.
+                    Este es llamado a la primera interaccion con esta funcion,
+                    entonces el segundo jugador que llame esta funcion ya no
+                    tiene la variable de _waitMoment_
+                    por lo cual marca el error'''
+                    pass
 
                 app.logger.info({'userSeleccion': {'ID': msg['ID']}})
             else:
@@ -277,6 +282,7 @@ def change_player_to_user(jsonMsg):
         if len(msg['ID']) >= 0:
             # Aqui ejecutamos la funcion
             changeTipo.change_to_user(msg['ID'])
+            updateModoDeJuego.update()
             app.logger.info({'userUnirme': {'ID': msg['ID']}})
         else:
             raise SocketIOEventos({

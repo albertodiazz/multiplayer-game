@@ -17,9 +17,7 @@ def read_data():
     return Dont_habeID, HabeID_pendientes, get_Disponibles, characters
 
 
-def select_personaje_random():
-    # FIRE [cambiar el nombre de esta funcion ya que no se
-    # lo selecciona de forma aleatoria]
+def confirm_characters():
     """[Funcion para seleccionar a los personajes
         de forma aleatoria una vez que se haya terminado
         el temporizador]

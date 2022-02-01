@@ -22,6 +22,7 @@ from lib.usuario import numeroJugadores # noqa
 from lib.utilidades import handle_json # noqa
 from lib.utilidades import waitMoments # noqa
 from lib.utilidades import whoLeavesCharacters # noqa
+from lib.utilidades import updateModoDeJuego # noqa
 
 # El modulo de cronometro lo estoy corriendo de
 # manera paralela con threading en app.py
@@ -29,4 +30,4 @@ from lib.utilidades import cronometro # noqa
 # El modulo randon lo estoy ocupando en la funcion
 # cronometro ya que ahi es donde elijo de forma aleatoria
 # una vez que el tiempo se acaba
-from lib.usuario import randomEleccion # noqa
+from lib.usuario import automaticElection # noqa

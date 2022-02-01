@@ -1,5 +1,8 @@
 from lib import pd
 from lib import c
+'''
+    Con estas funciones cambiamos los status de player a user o viceversa.
+'''
 
 
 def change_to_player(_ID_):
@@ -10,6 +13,7 @@ def change_to_player(_ID_):
         if player.loc[_ID_].TipoDeUsuario == 'user':
             player.at[_ID_, 'TipoDeUsuario'] = 'player'
             player.to_csv(c.DIR_DATA+'info_sesion.csv')
+
             return {'response': 'Se cambio a player'}
         else:
             return {'response': 'Ya es un player'}

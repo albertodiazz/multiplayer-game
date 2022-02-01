@@ -4,7 +4,7 @@ import json
 from lib import c
 from lib import pd
 from lib.utilidades import whoLeavesCharacters
-from lib.usuario import randomEleccion
+from lib.usuario import automaticElection
 from lib.usuario import update_data
 from lib.utilidades import handle_json
 from lib.usuario import numeroJugadores
@@ -73,19 +73,21 @@ def wait_confirmacion_characters(whichLevel=3):
 
     while True:
         if c.CRONOMETRO == 'PLAY':
-            player = pd.read_csv(c.DIR_DATA+'info_sesion.csv', index_col=0)
-            clean = player.StatusConfirmacion.dropna()
+            # player = pd.read_csv(c.DIR_DATA+'info_sesion.csv', index_col=0)
+            # clean = player.StatusConfirmacion.dropna()
+            numPlayers = numeroJugadores.get_players()
             print('Wait confirmacion characters')
-            if len(clean) > 0:
-                joinAlll = clean.loc[clean.values == 'player']
+            if len(numPlayers) > 0:
+                joinAlll = numPlayers.loc[numPlayers.StatusConfirmacion == 'Confirmado'] # noqa
                 # Lo revizamos cada segundo un vez que fue llamado
+                print(joinAlll, len(joinAlll), c.MAX_JUGADORES)
                 time.sleep(1)
-                if len(joinAlll) >= c.MAX_JUGADORES:
+                if len(joinAlll) >= len(numPlayers):
                     print('<<<<<<<<<<<<<<<<<<<<<<<<',
                           'Confirmaron todos los jugadores'
                           '>>>>>>>>>>>>>>>>>>>>>>>>>')
                     # Cambiamos de nivel?
-                    # randomEleccion.select_personaje_random()
+                    # randomEleccion.confirm_characters()
                     # update_data.update_info_jugador()
                     # GLOBAL
                     c.CRONOMETRO = 'STOP'
@@ -99,7 +101,7 @@ def wait_confirmacion_characters(whichLevel=3):
                   'Cronometro Stop from Wait Players',
                   '>>>>>>>>>>>>>>>>>>>>>>>>>')
             whoLeavesCharacters.check()
-            randomEleccion.select_personaje_random()
+            automaticElection.confirm_characters()
             update_data.update_info_jugador()
             ###################################
             # Cambiamos de nivel
@@ -109,7 +111,6 @@ def wait_confirmacion_characters(whichLevel=3):
 
 
 def wait_comparasion_respuestas(reto, respuesta_player):
-    # FIRE: preguntar si sera posible cambiar respuestas una vez elegidas
     open_json = open(c.DIR_DATA + "respuestas.json")
     data_json = json.load(open_json)
     # Player por sesion
@@ -218,7 +219,7 @@ def wait_confirmaciones_json(nivel_name, whichLevel=3):
             print('<<<<<<<<<<<<<<<<<<<<<<<<',
                   'Cronometro Stop from Wait Players',
                   '>>>>>>>>>>>>>>>>>>>>>>>>>')
-            randomEleccion.select_personaje_random()
+            automaticElection.confirm_characters()
             update_data.update_info_jugador()
             ###################################
             # Cambiamos de nivel

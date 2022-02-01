@@ -1,6 +1,7 @@
 import time
 from lib.usuario import numeroJugadores
 from lib import c
+from lib import updateModoDeJuego
 
 
 def convert(seconds):
@@ -92,10 +93,11 @@ def temporizador(time_in_seconds, _queue_):
             c.THREADS_CRONOMETRO = False
             c.CRONOMETRO = 'STOP'
             #######################################
-            numJ = numeroJugadores.get_players()
+            updateModoDeJuego.update()
+            # numJ = numeroJugadores.get_players()
 
-            if len(numJ.index) < 2:
-                c.MODO_DE_JUEGO = 'Solo'
-            else:
-                c.MODO_DE_JUEGO = 'Multijugador'
+            # if len(numJ.index) < 2:
+            #     c.MODO_DE_JUEGO = 'Solo'
+            # else:
+            #     c.MODO_DE_JUEGO = 'Multijugador'
             return
