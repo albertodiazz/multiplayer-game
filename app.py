@@ -3,6 +3,7 @@
 BUG : al momento de comparar los ID, si el fron manda null no ocurre nada y
 tampoco se levanta el raise
 '''
+from statistics import mode
 import threading
 import flask
 from lib import SocketIO, disconnect
@@ -202,6 +203,46 @@ def userSeleccion(jsonMsg):
         return
 
 
+@socketio.on('/respuestas')
+def avanzar_retroceder(jsonMsg):
+    # [Hay un nivel en especifico que tiene dos opciones,
+    # de avanzar al siguiente nivel o retroceder]
+    try:
+        msg = json.loads(jsonMsg)
+        if len(msg['type']) >= 0:
+            # No nos importa cuantas veces lo llamen aqui ponemos
+            # un append para el json y en back lo revizamos todo el tiempo
+            # revizando que corresponda con el numero de
+            # participantes por sesion
+            handle_json.add_confirmaciones_automatic(nivel_name=msg['name'],
+                                                     mode=msg['type'])
+
+            handle_json.add_respuestas(nivel_name=msg['name'],
+                                       respuestas=msg['respuesta'],
+                                       mode=msg['type'])
+
+            if c.THREADS_CRONOMETRO:
+                # Revizamos que no este corriendo el Thread
+                print('<<<<<<<<<<<<<<<<< ',
+                      'Wait Event is running', ' >>>>>>>>>')
+            else:
+                print('<<<<<<<< Wait Moments >>>>>>>>>')
+                _waitMoments_ = threading.Thread(target=waitMoments.wait_avanzar_retroceder, # noqa
+                                                 args=(msg['name'],
+                                                       msg['type']))
+                _waitMoments_.start()
+                # GLOBAL
+                c.THREADS_CRONOMETRO = _waitMoments_.isAlive()
+
+        else:
+            raise SocketIOEventos({
+                'Response': 'no enviaste nada'
+                })
+    except TypeError:
+        return
+
+
+# FIRE: tal vez quito esto si funciona solo respuestas
 @socketio.on('/momentos/confirmaciones')
 def espera_confirmacion(jsonMsg):
     """[Aqui es donde esperamos las confirmaciones de
@@ -219,7 +260,10 @@ def espera_confirmacion(jsonMsg):
             # revizando que corresponda con el numero de
             # participantes por sesion
             handle_json.add_confirmaciones_automatic(msg['Momento'])
-
+            # FIRE: [hay que quitar el cronometro ya que lo acordado es que
+            # nos guiaremos por el change status por eso el back tiene que
+            # estar constanstemente buscando cambios en el status de players
+            # en sesion]
             # GLOBAL
             if c.THREADS_CRONOMETRO:
                 print('<<<<<<<< Cronometo is running >>>>>>>>>')
@@ -244,6 +288,7 @@ def espera_confirmacion(jsonMsg):
         return
 
 
+# FIRE: tal vez quito esto si funcinoa solo respuestas
 @socketio.on('/player/respuesta')
 def setRespuestas(jsonMsg):
     try:

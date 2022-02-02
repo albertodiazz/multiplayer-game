@@ -1,6 +1,7 @@
 ''' WaitMoments solo funciona para el modo multijugador'''
 
 import json
+import string
 from lib import c
 from lib import pd
 from lib.utilidades import whoLeavesCharacters
@@ -8,6 +9,7 @@ from lib.usuario import automaticElection
 from lib.usuario import update_data
 from lib.utilidades import handle_json
 from lib.usuario import numeroJugadores
+from lib import np
 import time
 
 """[Todas estas funciones deben correr con un seguro
@@ -111,6 +113,12 @@ def wait_confirmacion_characters(whichLevel=3):
 
 
 def wait_comparasion_respuestas(reto, respuesta_player):
+    # PENDIENTE
+    '''
+        Esta funcion es para las respuestas, aqui es donde comparamos que los
+        usuarios contesten igual y despues de haber constetado igual
+        comparamos si acertaron con la respuesta correcta o no
+    '''
     open_json = open(c.DIR_DATA + "respuestas.json")
     data_json = json.load(open_json)
     # Player por sesion
@@ -183,11 +191,20 @@ def wait_comparasion_respuestas(reto, respuesta_player):
 
 
 def wait_confirmaciones_json(nivel_name, whichLevel=3):
-    # Aqui comprobamos las confirmaciones de los usuarios
-    # desde el json, recuerda que la diferencia entre esta funcion
-    # y las anteriores es de que aqui no sabes quien confirmo
-    # En vez de ocupar c.MAX_JUGADORES necesitas num_jugadores
-    # ya que son el numero de jugadores por sesion
+    """
+    Aqui comprobamos las confirmaciones de los usuarios
+    desde el json y una vez que los participantes por sesion
+    acepten, avanzamos al siguiente nivel o reto.
+
+    Args:
+        nivel_name ([string]): [esperamos el nombre del nivel,
+                                'nivel_instrucciones',
+                                'nivel_empezamos',
+                                'nivel_recuerdas']
+        whichLevel (int, optional): [a que nivel cambiamos esto
+                                    setea en el json la parte de level].
+                                    Defaults to 3.
+    """
 
     while True:
         if c.CRONOMETRO == 'PLAY':
@@ -198,6 +215,10 @@ def wait_confirmaciones_json(nivel_name, whichLevel=3):
             num_Confir = confirmaciones['Momentos'][nivel_name]['confirmacion']
 
             # Player por sesion
+            # NOTA [en la funcion de confirmacion characters
+            # solo ocupo al inicio el get_player, ya que al
+            # cambiar el status de algun player a user el front
+            # actualiza una varible global, en change status]
             players_sesion = numeroJugadores.get_players()
             num_players = len(players_sesion.index)
 
@@ -228,3 +249,45 @@ def wait_confirmaciones_json(nivel_name, whichLevel=3):
             break
 
     return
+
+
+def wait_avanzar_retroceder(nivel_name,
+                            mode='Momentos'):
+    # Seccion especifica para nivel_empezamos, recuerda que
+    # es la parte donde los jugadores pueden avanzar
+    # o retroceder en los niveles
+    while True:
+        # Players confirmaciones
+        open_json = open(c.DIR_DATA+"to_front.json")
+        confirmaciones = json.load(open_json)
+        num_Confir = confirmaciones[mode][nivel_name]['confirmacion']
+
+        # NOTA [en la funcion de confirmacion characters
+        # solo ocupo al inicio el get_player, ya que al
+        # cambiar el status de algun player a user el front
+        # actualiza una varible global, en change status]
+        players_sesion = numeroJugadores.get_players()
+        num_players = len(players_sesion.index)
+
+        # Lo revizamos cada segundo un vez que fue llamado
+        time.sleep(1)
+        open_json.close()
+        if num_Confir >= num_players:
+            print('<<<<<<<<<<<<<<<<<<<<<<<<',
+                  'Confirmaron todos los jugadores',
+                  '>>>>>>>>>>>>>>>>>>>>>>>>>')
+
+            lista = confirmaciones[mode][nivel_name]['respuestas']
+            if type(lista) == list:
+                # FIRE: [arreglar esto no funciona]
+                if np.all(np.array(lista == 'Si')):
+                    print('ALGUIEN CONTESTO DIFERENTE')
+                else:
+                    print('TODAS SON IGUALES')
+
+            ##############################
+            # Cambiamos de nivel
+            # handle_json.add_levels_manual('level', whichLevel)
+            ##############################
+            c.THREADS_CRONOMETRO = False
+            break

@@ -51,7 +51,7 @@ def add_retos_automatic():
     return {'response': 'Ok add_reto_automaic'}
 
 
-def add_confirmaciones_automatic(nivel_name):
+def add_confirmaciones_automatic(nivel_name, mode='Momentos'):
     """[Esta funcion debebemos ocuparla para
         todos los niveles que necesiten confirmaciones
         por parte de todos los jugadores. Lo que hace es agregar
@@ -63,6 +63,7 @@ def add_confirmaciones_automatic(nivel_name):
     ..................................................
     Args:
         nivel_name ([string]): [nombre del nivel en el json]
+        mode ([string]): [nombre del root json para acceder a los atributos]
     """
     # Necesitamos saber de quien viene la confirmacion?
     # Considero que no ya que no aparece un mensaje especial por jugador
@@ -70,12 +71,42 @@ def add_confirmaciones_automatic(nivel_name):
     confirmaciones = json.load(open_json)
     count_confir = 0
 
-    count_confir = int(confirmaciones['Momentos'][nivel_name]['confirmacion']) + 1 # noqa
-    confirmaciones['Momentos'][nivel_name]['confirmacion'] = count_confir
+    count_confir = int(confirmaciones[mode][nivel_name]['confirmacion']) + 1 # noqa
+    confirmaciones[mode][nivel_name]['confirmacion'] = count_confir
 
     with open(c.DIR_DATA+"to_front.json", 'w') as f:
         json.dump(confirmaciones, f)
         f.close()
+    open_json.close()
+
+
+def add_respuestas(nivel_name, respuestas, mode='Momentos'):
+    """[Funcion donde recivimos respuestas y la alamcenamos
+    en un array, para despues ser guardadas en un JSON]
+
+    Args:
+        nivel_name ([type]): [description]
+        respuestas ([type]): [description]
+        mode (str, optional): [asi accedemos al JSON dentro debe
+                                contener los atributos:
+                                respuestas].
+                                Defaults to 'Momentos'.
+                                'Retos'
+    """
+    open_json = open(c.DIR_DATA+"to_front.json")
+    confirmaciones = json.load(open_json)
+
+    lista = confirmaciones[mode][nivel_name]['respuestas']
+    if type(lista) == list:
+        lista.append(respuestas)
+        confirmaciones[mode][nivel_name]['respuestas'] = lista
+    else:
+        confirmaciones[mode][nivel_name]['respuestas'] = [respuestas]  # noqa
+
+    with open(c.DIR_DATA+"to_front.json", 'w') as f:
+        json.dump(confirmaciones, f)
+        f.close()
+
     open_json.close()
 
 

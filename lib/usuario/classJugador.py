@@ -16,7 +16,7 @@ class Jugadores:
 
         TipoDeUsuario: user / player
     """
-    # FIRE ya no creo que sea necesario los atributos de nivel, reto
+    # NOTA ya no creo que sea necesario los atributos de nivel, reto
     # ya que estos son variables generales. No importa la situacion
     # por jugador. Creo que lo que podemos utilizar es el reto para setear
     # las respuestas y comparar que todos hayan contestado lo mismo

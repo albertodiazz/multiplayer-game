@@ -8,10 +8,14 @@
 
             <button id='btn-start' type="button" >Start</button>
             <button id='btn-unirme' type="button" >Se unio un jugador</button>
+
             <button id='btn-seleccion' type="button" >Seleccion personjae</button>
             <button id='btn-confirmarSeleccion' type="button" >Confirmar seleccion</button>
+
+            <button id='btn-nivelEmpezamos' type="button" >Nivel Empezamos</button>
             <button id='btn-respuesta' type="button" >Respuesta Set</button>
             <button id='btn-confirmar' type="button" >Confirmar Momentos</button>
+
             <button id='btn-resetAll' type="button" >Reset All</button>
 
             <script >
@@ -62,6 +66,18 @@
                     }
                     socket.emit("/player/seleccion",JSON.stringify(msg))
                 }
+                // Tenemos dos tipos de type 'Momentos' y Retos
+                // Los dos entran en la logica de respuesta mas confirmacion
+                // ya que al ser un juego multijugador necesitamos esperar la
+                // confirmacion de todos los jugadores
+                function nivelEmpezamos(){
+                    let msg = {
+                        'type' : 'Momentos',
+                        'name' : 'nivel_empezamos',
+                        'respuesta': 'Si'
+                    }
+                    socket.emit("/respuestas",JSON.stringify(msg))
+                }
 
                 function respuesta(){
                     let msg = {
@@ -92,6 +108,7 @@
                 document.getElementById('btn-unirme').onclick = unirme
                 document.getElementById('btn-seleccion').onclick = seleccion
                 document.getElementById('btn-confirmarSeleccion').onclick = seleccionConfirmar
+                document.getElementById('btn-nivelEmpezamos').onclick = nivelEmpezamos
                 document.getElementById('btn-respuesta').onclick = respuesta
                 document.getElementById('btn-confirmar').onclick = Confirmar
                 document.getElementById('btn-resetAll').onclick = resetAll

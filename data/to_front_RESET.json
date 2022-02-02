@@ -4,16 +4,50 @@
             "confirmacion": 0
         },
         "nivel_empezamos": {
-            "empezamos" : "Si/No",
+            "respuestas" : "",
             "confirmacion": 0
         },
         "nivel_recuerdas":{
             "confirmacion": 0
         }
     },
+    "Retos": {
+        "reto0": {
+            "respuestas" : "",
+            "confirmacion": 0
+        },
+        "reto1": {
+            "respuestas" : "",
+            "confirmacion": 0
+        },
+        "reto3":{
+            "respuestas" : "",
+            "confirmacion": 0
+        },
+        "reto4":{
+            "respuestas" : "",
+            "confirmacion": 0
+        },
+        "reto5":{
+            "respuestas" : "",
+            "confirmacion": 0
+        },
+        "reto6":{
+            "respuestas" : "",
+            "confirmacion": 0
+        },
+        "reto7":{
+            "respuestas" : "",
+            "confirmacion": 0
+        },
+        "reto8":{
+            "respuestas" : "",
+            "confirmacion": 0
+        }
+    },
     "level": 0,
-    "players": [""],
-    "characters": [""],
+    "players": "",
+    "characters": "",
     "reto": {
         "which": 0,
         "respuestas": "iguales/diferentes",
