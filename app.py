@@ -216,10 +216,13 @@ def avanzar_retroceder(jsonMsg):
             # participantes por sesion
             handle_json.add_confirmaciones_automatic(nivel_name=msg['name'],
                                                      mode=msg['type'])
-
-            handle_json.add_respuestas(nivel_name=msg['name'],
-                                       respuestas=msg['respuesta'],
-                                       mode=msg['type'])
+            try:
+                handle_json.add_respuestas(nivel_name=msg['name'],
+                                           respuestas=msg['respuesta'],
+                                           mode=msg['type'])
+            except KeyError:
+                '''El valor respuetas no esta presente en el JSON'''
+                pass
 
             if c.THREADS_CRONOMETRO:
                 # Revizamos que no este corriendo el Thread

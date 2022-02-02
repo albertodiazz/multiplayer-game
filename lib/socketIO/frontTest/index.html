@@ -13,8 +13,8 @@
             <button id='btn-confirmarSeleccion' type="button" >Confirmar seleccion</button>
 
             <button id='btn-nivelEmpezamos' type="button" >Nivel Empezamos</button>
-            <button id='btn-respuesta' type="button" >Respuesta Set</button>
-            <button id='btn-confirmar' type="button" >Confirmar Momentos</button>
+            <button id='btn-retos' type="button" >Retos</button>
+            <button id='btn-confirmar' type="button" >Solo Confirmar</button>
 
             <button id='btn-resetAll' type="button" >Reset All</button>
 
@@ -66,41 +66,42 @@
                     }
                     socket.emit("/player/seleccion",JSON.stringify(msg))
                 }
-                // Tenemos dos tipos de type 'Momentos' y Retos
-                // Los dos entran en la logica de respuesta mas confirmacion
-                // ya que al ser un juego multijugador necesitamos esperar la
-                // confirmacion de todos los jugadores
+
+                //////////////////////////////////////////
+                //////////////////////////////////////////
                 function nivelEmpezamos(){
                     let msg = {
                         'type' : 'Momentos',
                         'name' : 'nivel_empezamos',
-                        'respuesta': 'Si'
+                        'respuesta': '2'
                     }
                     socket.emit("/respuestas",JSON.stringify(msg))
                 }
 
-                function respuesta(){
+                function retos(){
                     let msg = {
-                        'ID' : ID,
-                        'respuestas' : {
-                            'reto' : 'reto0',
-                            'respuesta' : 'Emision de monedas y billetes'
-                        }
+                        'type' : 'Retos',
+                        'name' : 'reto0',
+                        'respuesta': '1'
                     }
-                    socket.emit("/player/respuesta",JSON.stringify(msg))
+                    socket.emit("/respuestas",JSON.stringify(msg))
                 }
+
+                function Confirmar(){
+                    let msg = {
+                        'type' : 'Momentos',
+                        'name' : 'nivel_instrucciones',
+                    }
+                    socket.emit("/respuestas",JSON.stringify(msg))
+                }
+                //////////////////////////////////////////
+                //////////////////////////////////////////
 
                 function resetAll(){
                     let msg = {
                         'ID' : ID
                     }
                     socket.emit("/sesion/resetAll",JSON.stringify(msg))
-                }
-                function Confirmar(){
-                    let msg = {
-                        'Momento' : 'nivel_instrucciones'
-                    }
-                    socket.emit("/momentos/confirmaciones",JSON.stringify(msg))
                 }
 
 
@@ -109,7 +110,7 @@
                 document.getElementById('btn-seleccion').onclick = seleccion
                 document.getElementById('btn-confirmarSeleccion').onclick = seleccionConfirmar
                 document.getElementById('btn-nivelEmpezamos').onclick = nivelEmpezamos
-                document.getElementById('btn-respuesta').onclick = respuesta
+                document.getElementById('btn-retos').onclick = retos
                 document.getElementById('btn-confirmar').onclick = Confirmar
                 document.getElementById('btn-resetAll').onclick = resetAll
             </script>

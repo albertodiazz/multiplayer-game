@@ -253,6 +253,7 @@ def wait_confirmaciones_json(nivel_name, whichLevel=3):
 
 def wait_avanzar_retroceder(nivel_name,
                             mode='Momentos'):
+
     # Seccion especifica para nivel_empezamos, recuerda que
     # es la parte donde los jugadores pueden avanzar
     # o retroceder en los niveles
@@ -270,20 +271,51 @@ def wait_avanzar_retroceder(nivel_name,
         num_players = len(players_sesion.index)
 
         # Lo revizamos cada segundo un vez que fue llamado
+        print(num_Confir)
         time.sleep(1)
         open_json.close()
+
         if num_Confir >= num_players:
             print('<<<<<<<<<<<<<<<<<<<<<<<<',
                   'Confirmaron todos los jugadores',
                   '>>>>>>>>>>>>>>>>>>>>>>>>>')
 
-            lista = confirmaciones[mode][nivel_name]['respuestas']
-            if type(lista) == list:
-                # FIRE: [arreglar esto no funciona]
-                if np.all(np.array(lista == 'Si')):
-                    print('ALGUIEN CONTESTO DIFERENTE')
-                else:
-                    print('TODAS SON IGUALES')
+            try:
+                lista = confirmaciones[mode][nivel_name]['respuestas']
+                print(lista)
+                respuestaCorrecta = confirmaciones[mode][nivel_name]['respuestaCorrecta'] # noqa
+                if type(lista) == list:
+                    # Seleccionamos la respuesta del primero en el array
+                    # y lo comparamos con los demas
+                    if np.all(np.array(lista) == lista[0]):
+                        print('<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
+                              'TODOS CONTESTARON IGUAL',
+                              '>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+                        if np.all(np.array(lista) == respuestaCorrecta):
+                            print('<<<<<<<<<<<<<<<<<<<<<<<<<',
+                                  'TODAS SON CORRECTAS',
+                                  '>>>>>>>>>>>>>>>>>>>>>>>>>')
+                            ducplicados = [i for i in lista if lista.count(i) > 0] # noqa
+                            getRespuesta = list(set(ducplicados))
+                            confirmaciones[mode][nivel_name]['resultados']['estoContestaron'] = getRespuesta # noqa
+                            handle_json.only_save(confirmaciones)
+                        else:
+                            print('<<<<<<<<<<<<<<<<<<<<<<<<<',
+                                  'TODAS SON INCORRECTAS',
+                                  '>>>>>>>>>>>>>>>>>>>>>>>>>')
+                            ducplicados = [i for i in lista if lista.count(i) > 0] # noqa
+                            getRespuesta = list(set(ducplicados))
+                            confirmaciones[mode][nivel_name]['resultados']['estoContestaron'] = getRespuesta # noqa
+                            handle_json.only_save(confirmaciones)
+                    else:
+                        print('<<<<<<<<<<<<<<<<<<',
+                              'ALGUIEN CONTESTO DIFERENTE',
+                              '>>>>>>>>>>>>>>>>>>')
+
+            except KeyError:
+                print('Es una peticion de confirmar no necesitamos',
+                      ' comparar respuestas')
+                pass
 
             ##############################
             # Cambiamos de nivel

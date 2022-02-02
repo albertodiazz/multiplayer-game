@@ -131,6 +131,13 @@ def add_levels_manual(msg, value):
     return
 
 
+def only_save(data):
+    with open(c.DIR_DATA+"to_front.json", 'w') as f:
+        json.dump(data, f)
+        f.close()
+    return 'salvado'
+
+
 def reset():
     open_reset = open(c.DIR_DATA+"to_front_RESET.json")
     to_front = json.load(open_reset)
