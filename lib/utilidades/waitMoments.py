@@ -55,7 +55,6 @@ def wait_join_players(whichLevel=2):
                     # Cambiamos de nivel?
                     ##############################
                     # Cambiamos de nivel
-                    handle_json.add_levels_manual('level', whichLevel)
                     ##############################
                     break
         elif c.CRONOMETRO == 'STOP':
@@ -64,7 +63,6 @@ def wait_join_players(whichLevel=2):
                   '>>>>>>>>>>>>>>>>>>>>>>>>>')
             ##############################
             # Cambiamos de nivel
-            handle_json.add_levels_manual('level', whichLevel)
             ##############################
             break
 
@@ -95,7 +93,6 @@ def wait_confirmacion_characters(whichLevel=3):
                     c.CRONOMETRO = 'STOP'
                     ##############################
                     # Cambiamos de nivel
-                    handle_json.add_levels_manual('level', whichLevel)
                     ##############################
                     break
         elif c.CRONOMETRO == 'STOP':
@@ -107,13 +104,12 @@ def wait_confirmacion_characters(whichLevel=3):
             update_data.update_info_jugador()
             ###################################
             # Cambiamos de nivel
-            handle_json.add_levels_manual('level', whichLevel)
             ###################################
             break
 
 
+# PENDIENTE [tal vez esta funcion amerite eliminarla]
 def wait_comparasion_respuestas(reto, respuesta_player):
-    # PENDIENTE
     '''
         Esta funcion es para las respuestas, aqui es donde comparamos que los
         usuarios contesten igual y despues de haber constetado igual
@@ -190,6 +186,7 @@ def wait_comparasion_respuestas(reto, respuesta_player):
     return
 
 
+# PENDIENTE [tal vez esta funcion amerite eliminarla]
 def wait_confirmaciones_json(nivel_name, whichLevel=3):
     """
     Aqui comprobamos las confirmaciones de los usuarios
@@ -233,7 +230,6 @@ def wait_confirmaciones_json(nivel_name, whichLevel=3):
                 c.CRONOMETRO = 'STOP'
                 ##############################
                 # Cambiamos de nivel
-                handle_json.add_levels_manual('level', whichLevel)
                 ##############################
                 break
         elif c.CRONOMETRO == 'STOP':
@@ -244,19 +240,25 @@ def wait_confirmaciones_json(nivel_name, whichLevel=3):
             update_data.update_info_jugador()
             ###################################
             # Cambiamos de nivel
-            handle_json.add_levels_manual('level', whichLevel)
             ###################################
             break
 
     return
 
 
+# PENDIENTE [cambiar nombre ya que no corresponde a su funcion]
 def wait_avanzar_retroceder(nivel_name,
                             mode='Momentos'):
+    """[Aqui comprobamos dos momentos
+    1.- Cuando solo necesitan confirmar
+    2.- Cuando se necesita confirmar, saber si contestaron todos igual
+        y ver si la respuesta es correcta o incorrecta]
 
-    # Seccion especifica para nivel_empezamos, recuerda que
-    # es la parte donde los jugadores pueden avanzar
-    # o retroceder en los niveles
+    Args:
+        nivel_name ([string]): [basado en json to_front]
+        mode (str, optional): [basado en json to_front].
+                               Defaults to 'Momentos'.
+    """
     while True:
         # Players confirmaciones
         open_json = open(c.DIR_DATA+"to_front.json")
@@ -319,7 +321,6 @@ def wait_avanzar_retroceder(nivel_name,
 
             ##############################
             # Cambiamos de nivel
-            # handle_json.add_levels_manual('level', whichLevel)
             ##############################
             c.THREADS_CRONOMETRO = False
             break

@@ -46,11 +46,6 @@ JOIN_SECONDS = 10
 MOMENTOS_SECONDS = 10
 ####################################
 ''' Niveles '''
-# Cantidad de Niveles recuerda que se cuenta desde el 0
-# ejemplo: 6 seria [0,1,2,3,4,5], etc...
-CANTIDAD_NIVELES = 7
-CANTIDAD_RETOS = 9
-####################################
 # Cantindad maxima de jugadores. La app no tiene un limite
 # de jugadores, sin embargo esta varibale es necesaria setearla,
 # para el tiempo de espera en la pantalla de unirse, ya que si se

@@ -44,6 +44,9 @@
                     }
                     socket.emit("/user/unirme",JSON.stringify(msg))
                 }
+
+                //////////////////////////////////////////
+                //////////////////////////////////////////
                 let x = Math.floor((Math.random() * 10) + 1);
                 function seleccion(){
                     let msg = {
@@ -61,7 +64,7 @@
                         'ID' : ID,
                         'seleccion' : [
                          x.toString(),
-                            'False'
+                            'True'
                         ]
                     }
                     socket.emit("/player/seleccion",JSON.stringify(msg))
@@ -75,7 +78,7 @@
                         'name' : 'nivel_empezamos',
                         'respuesta': '2'
                     }
-                    socket.emit("/respuestas",JSON.stringify(msg))
+                    socket.emit("/actividades",JSON.stringify(msg))
                 }
 
                 function retos(){
@@ -84,7 +87,7 @@
                         'name' : 'reto0',
                         'respuesta': '1'
                     }
-                    socket.emit("/respuestas",JSON.stringify(msg))
+                    socket.emit("/actividades",JSON.stringify(msg))
                 }
 
                 function Confirmar(){
@@ -92,7 +95,7 @@
                         'type' : 'Momentos',
                         'name' : 'nivel_instrucciones',
                     }
-                    socket.emit("/respuestas",JSON.stringify(msg))
+                    socket.emit("/actividades",JSON.stringify(msg))
                 }
                 //////////////////////////////////////////
                 //////////////////////////////////////////

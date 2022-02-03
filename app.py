@@ -48,7 +48,7 @@ else:
 
 
 @socketio.on('connect')
-def connect():
+def connect(evento):
     # Aqui no importa si son dos o mas jugadores
     try:
         # Comprobamos conexiones de clientes
@@ -203,8 +203,8 @@ def userSeleccion(jsonMsg):
         return
 
 
-@socketio.on('/respuestas')
-def avanzar_retroceder(jsonMsg):
+@socketio.on('/actividades')
+def momentos_retos_confirmaciones(jsonMsg):
     # [Hay un nivel en especifico que tiene dos opciones,
     # de avanzar al siguiente nivel o retroceder]
     try:
@@ -240,79 +240,6 @@ def avanzar_retroceder(jsonMsg):
         else:
             raise SocketIOEventos({
                 'Response': 'no enviaste nada'
-                })
-    except TypeError:
-        return
-
-
-# FIRE: tal vez quito esto si funciona solo respuestas
-@socketio.on('/momentos/confirmaciones')
-def espera_confirmacion(jsonMsg):
-    """[Aqui es donde esperamos las confirmaciones de
-        los diferentes momentos]"""
-    try:
-        msg = json.loads(jsonMsg)
-        if len(msg['Momento']) >= 0:
-            # Aqui ejecutamos la funcion
-            ##########################################
-            '''IMPORTANTE aqui revizamos el modo de juego
-               una vez acabado el temporizador'''
-            ##########################################
-            # No nos importa cuantas veces lo llamen aqui ponemos
-            # un append para el json y en back lo revizamos todo el tiempo
-            # revizando que corresponda con el numero de
-            # participantes por sesion
-            handle_json.add_confirmaciones_automatic(msg['Momento'])
-            # FIRE: [hay que quitar el cronometro ya que lo acordado es que
-            # nos guiaremos por el change status por eso el back tiene que
-            # estar constanstemente buscando cambios en el status de players
-            # en sesion]
-            # GLOBAL
-            if c.THREADS_CRONOMETRO:
-                print('<<<<<<<< Cronometo is running >>>>>>>>>')
-            else:
-                print('<<<<<<<< Cronometo START >>>>>>>>>')
-                _cronometro_ = threading.Thread(target=cronometro.temporizador,
-                                                args=(c.JOIN_SECONDS,
-                                                      work_queue))
-                _cronometro_.start()
-                print('<<<<<<<< Wait Moments >>>>>>>>>')
-                _waitMoments_ = threading.Thread(target=waitMoments.wait_confirmaciones_json, # noqa
-                                                 args=(msg['Momento'],))
-                _waitMoments_.start()
-
-                # GLOBAL
-                c.THREADS_CRONOMETRO = _waitMoments_.isAlive()
-        else:
-            raise SocketIOEventos({
-                'Response': 'no enviaste nada'
-                })
-    except TypeError:
-        return
-
-
-# FIRE: tal vez quito esto si funcinoa solo respuestas
-@socketio.on('/player/respuesta')
-def setRespuestas(jsonMsg):
-    try:
-        msg = json.loads(jsonMsg)
-        if len(msg['ID']) >= 0:
-            if len(msg['respuestas']) == 2:
-                # [Es importante recordar que solo se tienen una oportunidad
-                # de respuesta por momento. Si esta logica la cambian, tienes
-                # que cambiar la forma en la que esta la funcion
-                # y agregar el ID]
-                waitMoments.wait_comparasion_respuestas(msg['respuestas']['reto'], # noqa
-                                                        msg['respuestas']['respuesta']) # noqa
-
-                app.logger.info({'setRespuestas': {'ID': msg['ID']}})
-            else:
-                raise SocketIOEventos({
-                    msg['ID']: 'Faltan atributos'
-                })
-        else:
-            raise SocketIOEventos({
-                'setRespuestas': 'no recivimos el ID del participante'
                 })
     except TypeError:
         return
