@@ -23,6 +23,7 @@ from lib.utilidades import handle_json # noqa
 from lib.utilidades import waitMoments # noqa
 from lib.utilidades import whoLeavesCharacters # noqa
 from lib.utilidades import updateModoDeJuego # noqa
+from lib.utilidades import eventosJuego # noqa
 
 # El modulo de cronometro lo estoy corriendo de
 # manera paralela con threading en app.py

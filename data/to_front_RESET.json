@@ -4,23 +4,17 @@
         "reto": 0
     },
     "Momentos": {
-        "nivel_instrucciones": {
-            "confirmacion": 0
-        },
-        "nivel_empezamos": {
+        "nivel4": {
             "respuestas" : "",
             "confirmacion": 0,
             "respuestaCorrecta": "1",
             "resultados" : {
                 "estoContestaron": ""
             }
-        },
-        "nivel_recuerdas":{
-            "confirmacion": 0
         }
     },
     "Retos": {
-        "reto0": {
+        "nivel6": {
             "respuestas" : "",
             "confirmacion": 0,
             "respuestaCorrecta": "1",
@@ -28,7 +22,7 @@
                 "estoContestaron": ""
             }
         },
-        "reto1": {
+        "nivel7": {
             "respuestas" : "",
             "confirmacion": 0,
             "respuestaCorrecta": "2",
@@ -36,7 +30,7 @@
                 "estoContestaron": ""
             }
         },
-        "reto3":{
+        "nivel8":{
             "respuestas" : "",
             "confirmacion": 0,
             "respuestaCorrecta": "5",
@@ -44,7 +38,7 @@
                 "estoContestaron": ""
             }
         },
-        "reto4":{
+        "nivel9":{
             "respuestas" : "",
             "confirmacion": 0,
             "respuestaCorrecta": "2",
@@ -52,7 +46,7 @@
                 "estoContestaron": ""
             }
         },
-        "reto5":{
+        "nivel10":{
             "respuestas" : "",
             "confirmacion": 0,
             "respuestaCorrecta": "1",
@@ -60,7 +54,7 @@
                 "estoContestaron": ""
             }
         },
-        "reto6":{
+        "nivel11":{
             "respuestas" : "",
             "confirmacion": 0,
             "respuestaCorrecta": "1",
@@ -68,7 +62,7 @@
                 "estoContestaron": ""
             }
         },
-        "reto7":{
+        "nivel12":{
             "respuestas" : "",
             "confirmacion": 0,
             "respuestaCorrecta": "3",
@@ -76,7 +70,7 @@
                 "estoContestaron": ""
             }
         },
-        "reto8":{
+        "nivel13":{
             "respuestas" : "",
             "confirmacion": 0,
             "respuestaCorrecta": "2",

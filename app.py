@@ -6,7 +6,7 @@ tampoco se levanta el raise
 from statistics import mode
 import threading
 import flask
-from lib import SocketIO, disconnect
+from lib import SocketIO, disconnect, emit
 from lib import Flask
 from lib import c
 from lib import json
@@ -217,11 +217,13 @@ def momentos_retos_confirmaciones(jsonMsg):
             handle_json.add_confirmaciones_automatic(nivel_name=msg['name'],
                                                      mode=msg['type'])
             try:
+                # Con msg['respuesta'] levantamos la excepcion
+                print(msg['respuesta'])
                 handle_json.add_respuestas(nivel_name=msg['name'],
                                            respuestas=msg['respuesta'],
                                            mode=msg['type'])
             except KeyError:
-                '''El valor respuetas no esta presente en el JSON'''
+                '''El valor ['respueta'] no esta presente en el JSON'''
                 pass
 
             if c.THREADS_CRONOMETRO:
@@ -230,7 +232,7 @@ def momentos_retos_confirmaciones(jsonMsg):
                       'Wait Event is running', ' >>>>>>>>>')
             else:
                 print('<<<<<<<< Wait Moments >>>>>>>>>')
-                _waitMoments_ = threading.Thread(target=waitMoments.wait_avanzar_retroceder, # noqa
+                _waitMoments_ = threading.Thread(target=waitMoments.wait_momentos_retos, # noqa
                                                  args=(msg['name'],
                                                        msg['type']))
                 _waitMoments_.start()
@@ -243,6 +245,36 @@ def momentos_retos_confirmaciones(jsonMsg):
                 })
     except TypeError:
         return
+
+
+@socketio.on('/nivel/cambiar')
+def adelante_atras(jsonMsg):
+    try:
+        msg = json.loads(jsonMsg)
+        if len(msg['type']) >= 0:
+            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            handle_json.add_confirmaciones_automatic(nivel_name=msg['name'], # noqa
+                                                     mode=msg['type'])
+
+            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            if c.THREADS_CRONOMETRO:
+                # Revizamos que no este corriendo el Thread
+                print('<<<<<<<<<<<<<<<<< ',
+                      'Wait Event is running', ' >>>>>>>>>')
+            else:
+                print('<<<<<<<< Wait Moments >>>>>>>>>')
+                # [Aqui hacemos la logica de comparacion de respuestas
+                # y logica de preguntas iguales y asi]
+                _waitMoments_ = threading.Thread(target=waitMoments.wait_momentos_retos, # noqa
+                                                 args=(msg['name'],
+                                                       msg['type'],
+                                                       msg['cambioNivel']))
+                _waitMoments_.start()
+                # GLOBAL
+                c.THREADS_CRONOMETRO = _waitMoments_.isAlive()
+    except TypeError:
+        return
+    return
 
 
 @socketio.on('/player/changeStatus')
@@ -258,6 +290,9 @@ def change_player_to_user(jsonMsg):
             # Aqui ejecutamos la funcion
             changeTipo.change_to_user(msg['ID'])
             updateModoDeJuego.update()
+            # PENDIENTE [tengo que saber una vez que ya empezaron a jugar
+            # para despues cuando se salgan todo en algun momento
+            # reseteo toda la aplicacion]
             app.logger.info({'userUnirme': {'ID': msg['ID']}})
         else:
             raise SocketIOEventos({

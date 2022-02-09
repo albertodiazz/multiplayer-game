@@ -8,7 +8,15 @@ hay que recordar que es el json que compartimos con front
 
 
 def add_level_reto_automatic(_type_='nivel'):
-    # FIRE [esto va en relacion con los controles de juego]
+    """[Agregamos de manera automatica un +1 al level en el json]
+
+    Args:
+        _type_ (str, optional): [podemos acceder a 'nivel' o 'reto'].
+                                Defaults to 'nivel'.
+
+    Returns:
+        [type]: [description]
+    """
     open_json = open(c.DIR_DATA+"to_front.json")
     levels = json.load(open_json)
     count_levels = None
@@ -88,6 +96,18 @@ def only_save(data):
         json.dump(data, f)
         f.close()
     return 'salvado'
+
+
+def reset_confirmaciones(nivel_name, mode='Momentos'):
+    open_json = open(c.DIR_DATA+"to_front.json")
+    confirmaciones = json.load(open_json)
+    confirmaciones[mode][nivel_name]['confirmacion'] = 0
+
+    with open(c.DIR_DATA+"to_front.json", 'w') as f:
+        json.dump(confirmaciones, f)
+        f.close()
+
+    open_json.close()
 
 
 def reset():

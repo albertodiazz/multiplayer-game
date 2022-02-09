@@ -14,7 +14,7 @@
 
             <button id='btn-nivelEmpezamos' type="button" >Nivel Empezamos</button>
             <button id='btn-retos' type="button" >Retos</button>
-            <button id='btn-confirmar' type="button" >Solo Confirmar</button>
+            <button id='btn-confirmar' type="button" >Cambiar Nivel</button>
 
             <button id='btn-resetAll' type="button" >Reset All</button>
 
@@ -31,7 +31,8 @@
                 function start(){
                     // Solo avanzamos de nivel mas no agregamos el ID
                     let msg = {
-                        'ID' : ID
+                        'ID' : ID,
+                        'name' : 'nivel0'
                     }
                     socket.emit("/user/start",JSON.stringify(msg))
                 }
@@ -40,7 +41,8 @@
                 function unirme(){
                     // Aqui agreagamos el ID
                     let msg = {
-                        'ID' : ID
+                        'ID' : ID,
+                        'name' : 'nivel1'
                     }
                     socket.emit("/user/unirme",JSON.stringify(msg))
                 }
@@ -51,6 +53,7 @@
                 function seleccion(){
                     let msg = {
                         'ID' : ID,
+                        'name' : 'nivel2',
                         'seleccion' : [
                          x.toString(),
                             'False'
@@ -62,6 +65,7 @@
                 function seleccionConfirmar(){
                     let msg = {
                         'ID' : ID,
+                        'name': 'nivel2',
                         'seleccion' : [
                          x.toString(),
                             'True'
@@ -75,8 +79,8 @@
                 function nivelEmpezamos(){
                     let msg = {
                         'type' : 'Momentos',
-                        'name' : 'nivel_empezamos',
-                        'respuesta': '2'
+                        'name' : 'nivel4',
+                        'respuesta': '1'
                     }
                     socket.emit("/actividades",JSON.stringify(msg))
                 }
@@ -84,22 +88,23 @@
                 function retos(){
                     let msg = {
                         'type' : 'Retos',
-                        'name' : 'reto0',
+                        'name' : 'nivel7',
                         'respuesta': '1'
                     }
                     socket.emit("/actividades",JSON.stringify(msg))
                 }
-
-                function Confirmar(){
+                // [La misma logica se ocupa para 'Momentos' lo uncio que cambiamos
+                // para cuando queremos cambiar de nivel es la direccion a donde apunta]
+                function CambiarNivel(){
                     let msg = {
-                        'type' : 'Momentos',
-                        'name' : 'nivel_instrucciones',
+                        'type' : 'Retos',
+                        'name' : 'nivel7',
+                        'cambioNivel' : 'adelante'
                     }
-                    socket.emit("/actividades",JSON.stringify(msg))
+                    socket.emit("/nivel/cambiar",JSON.stringify(msg))
                 }
                 //////////////////////////////////////////
                 //////////////////////////////////////////
-
                 function resetAll(){
                     let msg = {
                         'ID' : ID
@@ -114,7 +119,7 @@
                 document.getElementById('btn-confirmarSeleccion').onclick = seleccionConfirmar
                 document.getElementById('btn-nivelEmpezamos').onclick = nivelEmpezamos
                 document.getElementById('btn-retos').onclick = retos
-                document.getElementById('btn-confirmar').onclick = Confirmar
+                document.getElementById('btn-confirmar').onclick = CambiarNivel
                 document.getElementById('btn-resetAll').onclick = resetAll
             </script>
         </body>

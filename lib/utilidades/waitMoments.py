@@ -1,7 +1,6 @@
 ''' WaitMoments solo funciona para el modo multijugador'''
 
 import json
-import string
 from lib import c
 from lib import pd
 from lib.utilidades import whoLeavesCharacters
@@ -11,6 +10,7 @@ from lib.utilidades import handle_json
 from lib.usuario import numeroJugadores
 from lib import np
 import time
+from lib.utilidades import eventosJuego
 
 """[Todas estas funciones deben correr con un seguro
     en este caso todas estan inicializadas en base
@@ -32,6 +32,9 @@ Cliente que es quien decide que nos regresemos al prinicpio de la aplicacion
     wichLevel [int] : Todas las funciones tiene una variable de ese tipo, ahi
                       es donde seteamos a que nivel apunta nuestra funcion
 """
+# FIRE [En estas funciones debemos setear los mensajes de emit
+# OJO hay que tomar en cuenta que solo funcionan para el modo multijugador
+# entonces debes empezar a mandar los mensajes de emit en los dos modos]
 
 
 def wait_join_players(whichLevel=2):
@@ -108,7 +111,7 @@ def wait_confirmacion_characters(whichLevel=3):
             break
 
 
-# PENDIENTE [tal vez esta funcion amerite eliminarla]
+# PENDIENTE [No la estamos ocupando]
 def wait_comparasion_respuestas(reto, respuesta_player):
     '''
         Esta funcion es para las respuestas, aqui es donde comparamos que los
@@ -186,7 +189,7 @@ def wait_comparasion_respuestas(reto, respuesta_player):
     return
 
 
-# PENDIENTE [tal vez esta funcion amerite eliminarla]
+# PENDIENTE [No la estamos ocupando]
 def wait_confirmaciones_json(nivel_name, whichLevel=3):
     """
     Aqui comprobamos las confirmaciones de los usuarios
@@ -195,9 +198,9 @@ def wait_confirmaciones_json(nivel_name, whichLevel=3):
 
     Args:
         nivel_name ([string]): [esperamos el nombre del nivel,
-                                'nivel_instrucciones',
-                                'nivel_empezamos',
-                                'nivel_recuerdas']
+                                'nivel3',
+                                'nivel4',
+                                'nivel5']
         whichLevel (int, optional): [a que nivel cambiamos esto
                                     setea en el json la parte de level].
                                     Defaults to 3.
@@ -246,9 +249,9 @@ def wait_confirmaciones_json(nivel_name, whichLevel=3):
     return
 
 
-# PENDIENTE [cambiar nombre ya que no corresponde a su funcion]
-def wait_avanzar_retroceder(nivel_name,
-                            mode='Momentos'):
+def wait_momentos_retos(nivel_name,
+                        mode='Momentos',
+                        cambioNivel='No'):
     """[Aqui comprobamos dos momentos
     1.- Cuando solo necesitan confirmar
     2.- Cuando se necesita confirmar, saber si contestaron todos igual
@@ -258,7 +261,16 @@ def wait_avanzar_retroceder(nivel_name,
         nivel_name ([string]): [basado en json to_front]
         mode (str, optional): [basado en json to_front].
                                Defaults to 'Momentos'.
+        cambioNivel (str, optional): [atras, adelante].
+                               Defaults to 'No'.
+
     """
+    dataOut = {
+        'confirmacion': False,
+        'respuestas': '',
+        'respuestaCorrecta': ''
+    }
+
     while True:
         # Players confirmaciones
         open_json = open(c.DIR_DATA+"to_front.json")
@@ -281,8 +293,7 @@ def wait_avanzar_retroceder(nivel_name,
             print('<<<<<<<<<<<<<<<<<<<<<<<<',
                   'Confirmaron todos los jugadores',
                   '>>>>>>>>>>>>>>>>>>>>>>>>>')
-
-            try:
+            if cambioNivel == 'No':
                 lista = confirmaciones[mode][nivel_name]['respuestas']
                 print(lista)
                 respuestaCorrecta = confirmaciones[mode][nivel_name]['respuestaCorrecta'] # noqa
@@ -293,6 +304,9 @@ def wait_avanzar_retroceder(nivel_name,
                         print('<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
                               'TODOS CONTESTARON IGUAL',
                               '>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+                        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                        dataOut['respuestas'] = 'iguales'
+                        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                         if np.all(np.array(lista) == respuestaCorrecta):
                             print('<<<<<<<<<<<<<<<<<<<<<<<<<',
                                   'TODAS SON CORRECTAS',
@@ -301,6 +315,12 @@ def wait_avanzar_retroceder(nivel_name,
                             getRespuesta = list(set(ducplicados))
                             confirmaciones[mode][nivel_name]['resultados']['estoContestaron'] = getRespuesta # noqa
                             handle_json.only_save(confirmaciones)
+                            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                            c.THREADS_CRONOMETRO = False
+                            dataOut['respuestaCorrecta'] = 'true'
+                            handle_json.reset_confirmaciones(nivel_name, mode)
+                            return dataOut
+                            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                         else:
                             print('<<<<<<<<<<<<<<<<<<<<<<<<<',
                                   'TODAS SON INCORRECTAS',
@@ -309,18 +329,34 @@ def wait_avanzar_retroceder(nivel_name,
                             getRespuesta = list(set(ducplicados))
                             confirmaciones[mode][nivel_name]['resultados']['estoContestaron'] = getRespuesta # noqa
                             handle_json.only_save(confirmaciones)
+                            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                            c.THREADS_CRONOMETRO = False
+                            dataOut['respuestaCorrecta'] = 'false'
+                            handle_json.reset_confirmaciones(nivel_name, mode)
+                            return dataOut
+                            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                     else:
                         print('<<<<<<<<<<<<<<<<<<',
                               'ALGUIEN CONTESTO DIFERENTE',
                               '>>>>>>>>>>>>>>>>>>')
-
-            except KeyError:
+                        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                        c.THREADS_CRONOMETRO = False
+                        dataOut['respuestas'] = 'diferentes'
+                        handle_json.reset_confirmaciones(nivel_name, mode)
+                        return dataOut
+                        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            else:
+                # [Solo aqui cambiamos el nivel
+                # OJO estamos cambiando la estructura de respuesta
+                # de la funcion ya que en esta parte es en el unico lugar
+                # donde regresamos un booleano]
+                # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                c.THREADS_CRONOMETRO = False
+                dataOut['confirmaron'] = True
+                handle_json.reset_confirmaciones(nivel_name, mode)
                 print('Es una peticion de confirmar no necesitamos',
                       ' comparar respuestas')
-                pass
-
-            ##############################
-            # Cambiamos de nivel
-            ##############################
-            c.THREADS_CRONOMETRO = False
-            break
+                posicion = eventosJuego.reto_nivel_check(nivel_name)
+                print('Cambiamos el nivel a: ', posicion[cambioNivel])
+                return True
+            # pass
