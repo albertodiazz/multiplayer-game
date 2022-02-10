@@ -19,6 +19,8 @@
             <button id='btn-leaveGame' type="button" >Leave Game</button>
             <button id='btn-ExitGame' type="button" >Exit Game</button>
 
+            <button id='btn-startCronometro' type="button" >Start Cronometro</button>
+
             <button id='btn-resetAll' type="button" >Reset All</button>
 
             <script >
@@ -130,6 +132,13 @@
                     socket.emit("/sesion/exit",JSON.stringify(msg))
                 }
 
+                function startCronometro(){
+                    let msg = {
+                        'Cronometro': 'Start'
+                    }
+                    socket.emit("/player/seleccion",JSON.stringify(msg))
+                }
+
                 function resetAll(){
                     let msg = {
                         'ID' : ID
@@ -147,6 +156,7 @@
                 document.getElementById('btn-retoB').onclick = retoB
                 document.getElementById('btn-leaveGame').onclick = leaveGame
                 document.getElementById('btn-ExitGame').onclick = exitGame
+                document.getElementById('btn-startCronometro').onclick = startCronometro
                 document.getElementById('btn-resetAll').onclick = resetAll
             </script>
         </body>

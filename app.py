@@ -170,6 +170,21 @@ def userUnirme(jsonMsg):
 
 @socketio.on('/player/seleccion')
 def userSeleccion(jsonMsg):
+
+    _cronometro_ = threading.Thread(target=cronometro.temporizador,
+                                    args=(c.TIME_SECONDS,
+                                          work_queue))
+    if c.THREADS_CRONOMETRO:
+        # Revizamos que no este corriendo el Thread
+        print('<<<<<<<<<<<<<<<<< ',
+              'Cronometro is running', ' >>>>>>>>>')
+    else:
+        _cronometro_.start()
+        c.THREADS_CRONOMETRO = _cronometro_.isAlive()
+        _waitMoments_ = threading.Thread(target=copy_current_request_context(waitMoments.wait_confirmacion_characters)) # noqa
+        _waitMoments_.start()
+        print('<<<<<<<<<<<<<<<<< ', 'Start Cronometro: ',
+              c.THREADS_CRONOMETRO, ' >>>>>>>>>>>>>')
     try:
         msg = json.loads(jsonMsg)
         if len(msg['ID']) >= 0:
@@ -180,26 +195,6 @@ def userSeleccion(jsonMsg):
                 players = pd.read_csv(c.DIR_DATA+'info_sesion.csv',
                                       index_col=0)
                 seleccion = int(msg['seleccion'][0])
-
-                _cronometro_ = threading.Thread(target=cronometro.temporizador,
-                                                args=(c.TIME_SECONDS,
-                                                      work_queue))
-                # GLOBAL
-                if c.THREADS_CRONOMETRO:
-                    # Revizamos que no este corriendo el Thread
-                    print('<<<<<<<<<<<<<<<<< ',
-                          'Cronometro is running', ' >>>>>>>>>')
-                else:
-                    # Si no esta corriendo
-                    # Corremos el cronometro en segundo plano
-                    # Seteamos nuestra variable gobal
-                    _cronometro_.start()
-                    print('<<<<<<<< Wait Moments >>>>>>>>>')
-                    _waitMoments_ = threading.Thread(target=copy_current_request_context(waitMoments.wait_confirmacion_characters)) # noqa
-                    # GLOBAL
-                    c.THREADS_CRONOMETRO = _cronometro_.isAlive()
-                    print('<<<<<<<<<<<<<<<<< ', 'Start Cronometro: ',
-                          c.THREADS_CRONOMETRO, ' >>>>>>>>>>>>>')
 
                 if msg['seleccion'][1] == 'True':
                     # No han mandado confirmacion
@@ -222,20 +217,6 @@ def userSeleccion(jsonMsg):
                      broadcast=True)
                 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-                try:
-                    if _waitMoments_.isAlive():
-                        print('<<<<<< MOMENT is running>>>>>>')
-                    else:
-                        print('<<<<<< Start wait moments >>>>>>>')
-                        _waitMoments_.start()
-                except TypeError:
-                    '''El error que ocurre es que solo llamamos una vez el cronometro.
-                    Este es llamado a la primera interaccion con esta funcion,
-                    entonces el segundo jugador que llame esta funcion ya no
-                    tiene la variable de _waitMoment_
-                    por lo cual marca el error'''
-                    pass
 
                 app.logger.info({'userSeleccion': {'ID': msg['ID']}})
             else:
