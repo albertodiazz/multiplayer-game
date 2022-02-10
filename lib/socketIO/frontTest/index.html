@@ -16,6 +16,7 @@
             <button id='btn-retos' type="button" >Retos</button>
             <button id='btn-confirmar' type="button" >Cambiar Nivel</button>
 
+            <button id='btn-exitGame' type="button" >Exit Game</button>
             <button id='btn-resetAll' type="button" >Reset All</button>
 
             <script >
@@ -27,6 +28,14 @@
                     // alert(`${socket.id}, data`)
                     ID = socket.id
                 });
+
+                socket.on("server:level",(data) => {
+                    console.log(data)
+                })
+
+                socket.on("server:time",(data) => {
+                    console.log(data)
+                })
 
                 function start(){
                     // Solo avanzamos de nivel mas no agregamos el ID
@@ -105,6 +114,13 @@
                 }
                 //////////////////////////////////////////
                 //////////////////////////////////////////
+                function exitGame(){
+                    let msg = {
+                        'ID' : ID
+                    }
+                    socket.emit("/player/changeStatus",JSON.stringify(msg))
+                }
+
                 function resetAll(){
                     let msg = {
                         'ID' : ID
@@ -120,6 +136,7 @@
                 document.getElementById('btn-nivelEmpezamos').onclick = nivelEmpezamos
                 document.getElementById('btn-retos').onclick = retos
                 document.getElementById('btn-confirmar').onclick = CambiarNivel
+                document.getElementById('btn-exitGame').onclick = exitGame
                 document.getElementById('btn-resetAll').onclick = resetAll
             </script>
         </body>

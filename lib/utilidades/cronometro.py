@@ -40,11 +40,10 @@ def comparacionTiempos(tiempo, minutos_meta, segundos_meta, emit=None):
         # GLOBAL
         c.TIEMPO_GLOBAL['minutos'] = "%02d" % (int(minutos_meta)-(int(minutos))) # noqa
         c.TIEMPO_GLOBAL['segundos'] = "%02d" % (int(segundos_meta)-int(segundos)) # noqa
-        # PENDIENTE = agregar al queue o integracion con socket io
         print(c.TIEMPO_GLOBAL)
     elif int(segundos_meta) == 0:
         # GLOBAL
-        c.TIEMPO_GLOBAL['minutos'] = "%02d" % (int(minutos_meta)-(int(minutos)))
+        c.TIEMPO_GLOBAL['minutos'] = "%02d" % (int(minutos_meta)-(int(minutos))) # noqa
         c.TIEMPO_GLOBAL['segundos'] = "%02d" % (int(59)-int(segundos))
         print(c.TIEMPO_GLOBAL)
 

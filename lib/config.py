@@ -10,6 +10,9 @@ INDEX_MODE = True
 DIR_INDEX = 'D:/trabajo/cocay/ramodelacion_Mide/radioGrafia_BancoCentral/Backend/lib/socketIO/frontTest/' # noqa
 # Aqui seteamos el url de la carpeta data
 DIR_DATA = 'data/'
+SERVER_LEVEL = 'server:level'
+SERVER_TIME = 'server:time'
+SERVER_RESPONSE = 'server:response'
 '''
 ..............................
         GLOBAL VARIABLES
@@ -30,6 +33,16 @@ TIEMPO_GLOBAL = {'minutos': 0, 'segundos': 0}
 # es necesario cambiarlo manual
 MODO_DE_JUEGO = 'Multijugador'
 ####################################
+DATA_TO_FRONT = {
+        'level': 0,
+        'players': [],
+        'characters': ["", "", "", "",
+                       "", "", "", "",
+                       "", "", ""],
+        'respuestas': '',
+        'respuestasCorrectas': False,
+        'respuestasFinales': []
+}
 '''
 ..............................
         SETUP JUEGO

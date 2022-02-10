@@ -3,6 +3,7 @@ import threading # noqa
 from flask import Flask # noqa
 from flask_socketio import SocketIO, emit # noqa
 from flask_socketio import disconnect # noqa
+from flask import copy_current_request_context # noqa
 
 import json # noqa
 import pandas as pd # noqa
@@ -24,6 +25,7 @@ from lib.utilidades import waitMoments # noqa
 from lib.utilidades import whoLeavesCharacters # noqa
 from lib.utilidades import updateModoDeJuego # noqa
 from lib.utilidades import eventosJuego # noqa
+from lib.utilidades import personajesArray # noqa
 
 # El modulo de cronometro lo estoy corriendo de
 # manera paralela con threading en app.py

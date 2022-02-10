@@ -5,9 +5,12 @@ tampoco se levanta el raise
 '''
 from statistics import mode
 import threading
+
+from numpy import broadcast
 import flask
 from lib import SocketIO, disconnect, emit
 from lib import Flask
+from lib import copy_current_request_context
 from lib import c
 from lib import json
 from lib import queue
@@ -21,6 +24,7 @@ from lib import deletUser
 from lib import waitMoments
 from lib import handle_json
 from lib import updateModoDeJuego
+from lib import personajesArray
 
 app = Flask(__name__, template_folder=c.DIR_INDEX)
 socketio = SocketIO(app, async_mode=c.ASYNC_MODE)
@@ -58,6 +62,9 @@ def connect(evento):
         # Creamos jugador por sesion con el atributo user
         # en unirse se lo cambiamos a player
         funcionesJugador.create_player(flask.request.sid)
+        emit(c.SERVER_LEVEL,
+             json.dumps(c.DATA_TO_FRONT, indent=4),
+             broadcast=True)
     except TypeError:
         app.logger.info('No hay conexion con el servidor')
         return
@@ -84,6 +91,12 @@ def userStart(jsonMsg):
         msg = json.loads(jsonMsg)
         if len(msg['ID']) >= 0:
             # Aqui ejecutamos la funcion
+            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            c.DATA_TO_FRONT['level'] = 1
+            emit(c.SERVER_LEVEL,
+                 json.dumps(c.DATA_TO_FRONT, indent=4),
+                 broadcast=True)
+            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
             app.logger.info({'userStart': {'ID': msg['ID']}})
         else:
             raise SocketIOEventos({
@@ -101,6 +114,14 @@ def userUnirme(jsonMsg):
         msg = json.loads(jsonMsg)
         if len(msg['ID']) >= 0:
             # Aqui ejecutamos la funcion
+            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            c.DATA_TO_FRONT['players'].append(msg['ID'])
+            emit(c.SERVER_LEVEL,
+                 json.dumps(c.DATA_TO_FRONT, indent=4),
+                 broadcast=True)
+            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
             changeTipo.change_to_player(msg['ID'])
             ##########################################
             '''IMPORTANTE aqui revizamos el modo de juego
@@ -116,7 +137,7 @@ def userUnirme(jsonMsg):
                                                       work_queue))
                 _cronometro_.start()
                 print('<<<<<<<< Wait Moments >>>>>>>>>')
-                _waitMoments_ = threading.Thread(target=waitMoments.wait_join_players) # noqa
+                _waitMoments_ = threading.Thread(target=copy_current_request_context(waitMoments.wait_join_players)) # noqa
                 _waitMoments_.start()
 
                 # GLOBAL
@@ -157,7 +178,7 @@ def userSeleccion(jsonMsg):
                     # Seteamos nuestra variable gobal
                     _cronometro_.start()
                     print('<<<<<<<< Wait Moments >>>>>>>>>')
-                    _waitMoments_ = threading.Thread(target=waitMoments.wait_confirmacion_characters) # noqa
+                    _waitMoments_ = threading.Thread(target=copy_current_request_context(waitMoments.wait_confirmacion_characters)) # noqa
                     # GLOBAL
                     c.THREADS_CRONOMETRO = _cronometro_.isAlive()
                     print('<<<<<<<<<<<<<<<<< ', 'Start Cronometro: ',
@@ -176,6 +197,15 @@ def userSeleccion(jsonMsg):
                                                           players)
                 # Actualizamos la data main de info_sesion.csv
                 update_data.update_info_jugador()
+                # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                c.DATA_TO_FRONT['characters'] = personajesArray.get()
+                emit(c.SERVER_LEVEL,
+                     json.dumps(c.DATA_TO_FRONT, indent=4),
+                     broadcast=True)
+                # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
                 try:
                     if _waitMoments_.isAlive():
                         print('<<<<<< MOMENT is running>>>>>>')
@@ -205,6 +235,7 @@ def userSeleccion(jsonMsg):
 
 @socketio.on('/actividades')
 def momentos_retos_confirmaciones(jsonMsg):
+    # FIRE EMITS
     # [Hay un nivel en especifico que tiene dos opciones,
     # de avanzar al siguiente nivel o retroceder]
     try:
@@ -249,6 +280,7 @@ def momentos_retos_confirmaciones(jsonMsg):
 
 @socketio.on('/nivel/cambiar')
 def adelante_atras(jsonMsg):
+    # FIRE EMITS
     try:
         msg = json.loads(jsonMsg)
         if len(msg['type']) >= 0:
@@ -277,6 +309,14 @@ def adelante_atras(jsonMsg):
     return
 
 
+def nivel_final():
+    # PENDIENTE [En el nivel final solo existe un boton
+    # el primero que presione el boton activa un cronometro
+    # al terminar el cronometro nos envia al principio de la app
+    # y resetea toda la app]
+    return
+
+
 @socketio.on('/player/changeStatus')
 def change_player_to_user(jsonMsg):
     """[Funcion en donde cambiamos al player to user
@@ -287,12 +327,30 @@ def change_player_to_user(jsonMsg):
     try:
         msg = json.loads(jsonMsg)
         if len(msg['ID']) >= 0:
-            # Aqui ejecutamos la funcion
+            # Estas dos funiciones estan de sobra ya que no andamos
+            # seteando el array en base a nuestra base de datos, sin
+            # embarhgo la dejo en caso de utilizarla en un futuro,
+            # ya que todo se esta actualizando a nivel base de datos
             changeTipo.change_to_user(msg['ID'])
             updateModoDeJuego.update()
-            # PENDIENTE [tengo que saber una vez que ya empezaron a jugar
-            # para despues cuando se salgan todo en algun momento
-            # reseteo toda la aplicacion]
+            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            try:
+                c.DATA_TO_FRONT['players'].remove(msg['ID'])
+            except ValueError:
+                # No existe en la lista
+                pass
+            try:
+                c.DATA_TO_FRONT['characters'].remove(msg['ID'])
+            except ValueError:
+                # No existe en la lista
+                pass
+            emit(c.SERVER_LEVEL,
+                 json.dumps(c.DATA_TO_FRONT, indent=4),
+                 broadcast=True)
+            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
             app.logger.info({'userUnirme': {'ID': msg['ID']}})
         else:
             raise SocketIOEventos({
@@ -306,6 +364,7 @@ def change_player_to_user(jsonMsg):
 
 @socketio.on('/sesion/resetAll')
 def resetAll(jsonMsg):
+    # FIRE EMITS
     try:
         msg = json.loads(jsonMsg)
         if len(msg['ID']) >= 0:

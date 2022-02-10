@@ -1,6 +1,8 @@
 ''' WaitMoments solo funciona para el modo multijugador'''
 
 import json
+
+from numpy import broadcast
 from lib import c
 from lib import pd
 from lib.utilidades import whoLeavesCharacters
@@ -11,6 +13,7 @@ from lib.usuario import numeroJugadores
 from lib import np
 import time
 from lib.utilidades import eventosJuego
+from lib import emit
 
 """[Todas estas funciones deben correr con un seguro
     en este caso todas estan inicializadas en base
@@ -32,10 +35,6 @@ Cliente que es quien decide que nos regresemos al prinicpio de la aplicacion
     wichLevel [int] : Todas las funciones tiene una variable de ese tipo, ahi
                       es donde seteamos a que nivel apunta nuestra funcion
 """
-# FIRE [En estas funciones debemos setear los mensajes de emit
-# OJO hay que tomar en cuenta que solo funcionan para el modo multijugador
-# entonces debes empezar a mandar los mensajes de emit en los dos modos]
-
 
 def wait_join_players(whichLevel=2):
     # Esperamos a los usuarios que se unen a la sesion de player
@@ -59,6 +58,10 @@ def wait_join_players(whichLevel=2):
                     ##############################
                     # Cambiamos de nivel
                     ##############################
+                    c.DATA_TO_FRONT['level'] = whichLevel
+                    emit(c.SERVER_LEVEL,
+                         json.dumps(c.DATA_TO_FRONT, indent=4),
+                         broadcast=True)
                     break
         elif c.CRONOMETRO == 'STOP':
             print('<<<<<<<<<<<<<<<<<<<<<<<<',
@@ -67,6 +70,10 @@ def wait_join_players(whichLevel=2):
             ##############################
             # Cambiamos de nivel
             ##############################
+            c.DATA_TO_FRONT['level'] = whichLevel
+            emit(c.SERVER_LEVEL,
+                 json.dumps(c.DATA_TO_FRONT, indent=4),
+                 broadcast=True)
             break
 
 
@@ -84,6 +91,13 @@ def wait_confirmacion_characters(whichLevel=3):
                 joinAlll = numPlayers.loc[numPlayers.StatusConfirmacion == 'Confirmado'] # noqa
                 # Lo revizamos cada segundo un vez que fue llamado
                 print(joinAlll, len(joinAlll), c.MAX_JUGADORES)
+                # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                emit(c.SERVER_TIME,
+                     json.dumps(c.TIEMPO_GLOBAL, indent=4),
+                     broadcast=True)
+                # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                 time.sleep(1)
                 if len(joinAlll) >= len(numPlayers):
                     print('<<<<<<<<<<<<<<<<<<<<<<<<',
@@ -97,6 +111,10 @@ def wait_confirmacion_characters(whichLevel=3):
                     ##############################
                     # Cambiamos de nivel
                     ##############################
+                    c.DATA_TO_FRONT['level'] = whichLevel
+                    emit(c.SERVER_LEVEL,
+                         json.dumps(c.DATA_TO_FRONT, indent=4),
+                         broadcast=True)
                     break
         elif c.CRONOMETRO == 'STOP':
             print('<<<<<<<<<<<<<<<<<<<<<<<<',
@@ -108,10 +126,14 @@ def wait_confirmacion_characters(whichLevel=3):
             ###################################
             # Cambiamos de nivel
             ###################################
+            c.DATA_TO_FRONT['level'] = whichLevel
+            emit(c.SERVER_LEVEL,
+                 json.dumps(c.DATA_TO_FRONT, indent=4),
+                 broadcast=True)
             break
 
 
-# PENDIENTE [No la estamos ocupando]
+# NOTA [No la estamos ocupando]
 def wait_comparasion_respuestas(reto, respuesta_player):
     '''
         Esta funcion es para las respuestas, aqui es donde comparamos que los
@@ -159,7 +181,6 @@ def wait_comparasion_respuestas(reto, respuesta_player):
         # una decision correcta o incorrecta
         if data_json['confirmaciones']['correctas'] == num_players:
             print('Todos estan bien')
-            # PENDIENTE [antes de resetear contestar a front]
             # Reseteamos nuestro Json para el siguiente evento
             data_json['confirmaciones']['incorrectas'] = 0
             data_json['confirmaciones']['correctas'] = 0
@@ -168,7 +189,6 @@ def wait_comparasion_respuestas(reto, respuesta_player):
                 f.close()
         elif data_json['confirmaciones']['incorrectas'] == num_players:
             print('Todos estan mal')
-            # PENDIENTE [antes de resetear contestar a front]
             # Reseteamos nuestro Json para el siguiente evento
             data_json['confirmaciones']['incorrectas'] = 0
             data_json['confirmaciones']['correctas'] = 0
@@ -177,7 +197,6 @@ def wait_comparasion_respuestas(reto, respuesta_player):
                 f.close()
         else:
             print('Alguien no contesto igual')
-            # PENDIENTE [antes de resetear contestar a front]
             # Reseteamos nuestro Json para el siguiente evento
             data_json['confirmaciones']['incorrectas'] = 0
             data_json['confirmaciones']['correctas'] = 0
@@ -189,7 +208,7 @@ def wait_comparasion_respuestas(reto, respuesta_player):
     return
 
 
-# PENDIENTE [No la estamos ocupando]
+# NOTA [No la estamos ocupando]
 def wait_confirmaciones_json(nivel_name, whichLevel=3):
     """
     Aqui comprobamos las confirmaciones de los usuarios
@@ -270,7 +289,7 @@ def wait_momentos_retos(nivel_name,
         'respuestas': '',
         'respuestaCorrecta': ''
     }
-
+    # FIRE EMITS
     while True:
         # Players confirmaciones
         open_json = open(c.DIR_DATA+"to_front.json")

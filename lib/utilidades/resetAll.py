@@ -11,6 +11,17 @@ def resetSesion():
     # NOTA: al realizar cambios en los atributos de Personajes.csv tienes
     # que revizar que sean los mismo a los de la classe
     # del jugador.
+    resetGlobal = {
+        'level': 0,
+        'players': [],
+        'characters': ["", "", "", "",
+                       "", "", "", "",
+                       "", "", ""],
+        'respuestas': '',
+        'respuestasCorrectas': False,
+        'respuestasFinales': []
+    }
+    c.DATA_TO_FRONT = resetGlobal
     info_sesion = pd.read_csv(c.DIR_DATA+"info_sesion.csv", index_col=0)
     info_sesion.SeleccionID = ''
     info_sesion.StatusConfirmacion = ''
