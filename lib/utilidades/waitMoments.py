@@ -2,7 +2,6 @@
 
 import json
 
-from numpy import broadcast
 from lib import c
 from lib import pd
 from lib.utilidades import whoLeavesCharacters
@@ -14,6 +13,7 @@ from lib import np
 import time
 from lib.utilidades import eventosJuego
 from lib import emit
+from lib.utilidades import resetAll
 
 """[Todas estas funciones deben correr con un seguro
     en este caso todas estan inicializadas en base
@@ -35,6 +35,7 @@ Cliente que es quien decide que nos regresemos al prinicpio de la aplicacion
     wichLevel [int] : Todas las funciones tiene una variable de ese tipo, ahi
                       es donde seteamos a que nivel apunta nuestra funcion
 """
+
 
 def wait_join_players(whichLevel=2):
     # Esperamos a los usuarios que se unen a la sesion de player
@@ -120,16 +121,26 @@ def wait_confirmacion_characters(whichLevel=3):
             print('<<<<<<<<<<<<<<<<<<<<<<<<',
                   'Cronometro Stop from Wait Players',
                   '>>>>>>>>>>>>>>>>>>>>>>>>>')
-            whoLeavesCharacters.check()
+            NoEligieron = whoLeavesCharacters.check()
             automaticElection.confirm_characters()
             update_data.update_info_jugador()
             ###################################
             # Cambiamos de nivel
             ###################################
+            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            try:
+                for i in range(len(NoEligieron)):
+                    c.DATA_TO_FRONT['players'].remove(NoEligieron[i])
+            except ValueError:
+                # No existe en la lista
+                pass
             c.DATA_TO_FRONT['level'] = whichLevel
             emit(c.SERVER_LEVEL,
                  json.dumps(c.DATA_TO_FRONT, indent=4),
                  broadcast=True)
+            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
             break
 
 
@@ -290,6 +301,15 @@ def wait_momentos_retos(nivel_name,
         'respuestaCorrecta': ''
     }
     # FIRE EMITS
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    c.DATA_TO_FRONT['respuestas'] = ''
+    c.DATA_TO_FRONT['respuestasCorrectas'] = 'false'
+    emit(c.SERVER_LEVEL,
+         json.dumps(c.DATA_TO_FRONT, indent=4),
+         broadcast=True)
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     while True:
         # Players confirmaciones
         open_json = open(c.DIR_DATA+"to_front.json")
@@ -324,6 +344,13 @@ def wait_momentos_retos(nivel_name,
                               'TODOS CONTESTARON IGUAL',
                               '>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
                         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                        c.DATA_TO_FRONT['respuestas'] = 'iguales'
+                        emit(c.SERVER_LEVEL,
+                             json.dumps(c.DATA_TO_FRONT, indent=4),
+                             broadcast=True)
+                        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                         dataOut['respuestas'] = 'iguales'
                         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                         if np.all(np.array(lista) == respuestaCorrecta):
@@ -338,8 +365,16 @@ def wait_momentos_retos(nivel_name,
                             c.THREADS_CRONOMETRO = False
                             dataOut['respuestaCorrecta'] = 'true'
                             handle_json.reset_confirmaciones(nivel_name, mode)
+                            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                            c.DATA_TO_FRONT['respuestasCorrectas'] = 'true'
+                            c.DATA_TO_FRONT['respuestasFinales'].append('true')
+                            emit(c.SERVER_LEVEL,
+                                 json.dumps(c.DATA_TO_FRONT, indent=4),
+                                 broadcast=True)
+                            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                             return dataOut
-                            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                         else:
                             print('<<<<<<<<<<<<<<<<<<<<<<<<<',
                                   'TODAS SON INCORRECTAS',
@@ -352,12 +387,27 @@ def wait_momentos_retos(nivel_name,
                             c.THREADS_CRONOMETRO = False
                             dataOut['respuestaCorrecta'] = 'false'
                             handle_json.reset_confirmaciones(nivel_name, mode)
+                            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                            c.DATA_TO_FRONT['respuestasCorrectas'] = 'false'
+                            c.DATA_TO_FRONT['respuestasFinales'].append('false') # noqa
+                            emit(c.SERVER_LEVEL,
+                                 json.dumps(c.DATA_TO_FRONT, indent=4),
+                                 broadcast=True)
+                            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                             return dataOut
-                            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                     else:
                         print('<<<<<<<<<<<<<<<<<<',
                               'ALGUIEN CONTESTO DIFERENTE',
                               '>>>>>>>>>>>>>>>>>>')
+                        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                        c.DATA_TO_FRONT['respuestas'] = 'diferentes'
+                        emit(c.SERVER_LEVEL,
+                             json.dumps(c.DATA_TO_FRONT, indent=4),
+                             broadcast=True)
+                        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                         c.THREADS_CRONOMETRO = False
                         dataOut['respuestas'] = 'diferentes'
@@ -377,5 +427,64 @@ def wait_momentos_retos(nivel_name,
                       ' comparar respuestas')
                 posicion = eventosJuego.reto_nivel_check(nivel_name)
                 print('Cambiamos el nivel a: ', posicion[cambioNivel])
+                # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                c.DATA_TO_FRONT['level'] = posicion[cambioNivel]
+                emit(c.SERVER_LEVEL,
+                     json.dumps(c.DATA_TO_FRONT, indent=4),
+                     broadcast=True)
+                # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                 return True
-            # pass
+
+
+def wait_exit_sesion(nivel_name,
+                     mode='Momentos'):
+    while True:
+        if c.CRONOMETRO == 'PLAY':
+
+            # Players confirmaciones
+            open_json = open(c.DIR_DATA+"to_front.json")
+            confirmaciones = json.load(open_json)
+            num_Confir = confirmaciones['Momentos'][nivel_name]['confirmacion']
+
+            # Player por sesion
+            # NOTA [en la funcion de confirmacion characters
+            # solo ocupo al inicio el get_player, ya que al
+            # cambiar el status de algun player a user el front
+            # actualiza una varible global, en change status]
+            players_sesion = numeroJugadores.get_players()
+            num_players = len(players_sesion.index)
+            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            emit(c.SERVER_TIME,
+                 json.dumps(c.TIEMPO_GLOBAL, indent=4),
+                 broadcast=True)
+            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            # Lo revizamos cada segundo un vez que fue llamado
+            time.sleep(1)
+            open_json.close()
+            if num_Confir >= num_players:
+                print('<<<<<<<<<<<<<<<<<<<<<<<<',
+                      'Confirmaron todos los jugadores',
+                      '>>>>>>>>>>>>>>>>>>>>>>>>>')
+                # GLOBAL
+                c.CRONOMETRO = 'STOP'
+                ##############################
+                # Cambiamos de nivel
+                ##############################
+                resetAll.resetSesion()
+                emit(c.SERVER_LEVEL,
+                     json.dumps(c.DATA_TO_FRONT, indent=4),
+                     broadcast=True)
+                break
+        elif c.CRONOMETRO == 'STOP':
+            print('<<<<<<<<<<<<<<<<<<<<<<<<',
+                  'Cronometro Stop from Wait Players',
+                  '>>>>>>>>>>>>>>>>>>>>>>>>>')
+            resetAll.resetSesion()
+            emit(c.SERVER_LEVEL,
+                 json.dumps(c.DATA_TO_FRONT, indent=4),
+                 broadcast=True)
+            break

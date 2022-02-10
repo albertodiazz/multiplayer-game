@@ -14,12 +14,12 @@ def reto_nivel_check(levelFromFront):
     temp = re.compile("([a-zA-Z]+)([0-9]+)")
     filterString = temp.match(enQueNivelEstamos).groups()
 
-    nivelAdelante = filterString[0] + str(int(filterString[1]) + 1)
+    nivelAdelante = int(filterString[1]) + 1
 
     if int(filterString[1]) > 0:
-        nivelAtras = filterString[0] + str(int(filterString[1]) - 1)
+        nivelAtras = int(filterString[1]) - 1
     else:
-        nivelAtras = filterString[0] + '0'
+        nivelAtras = 0
 
     posiciones = {
         'atras': nivelAtras,

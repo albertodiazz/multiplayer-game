@@ -39,8 +39,8 @@ DATA_TO_FRONT = {
         'characters': ["", "", "", "",
                        "", "", "", "",
                        "", "", ""],
-        'respuestas': '',
-        'respuestasCorrectas': False,
+        'respuestas': "",
+        'respuestasCorrectas': "false",
         'respuestasFinales': []
 }
 '''

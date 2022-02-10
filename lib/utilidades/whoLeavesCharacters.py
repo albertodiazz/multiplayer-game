@@ -14,4 +14,7 @@ def check():
     players_sinConfirmar.to_csv(c.DIR_DATA+'info_sesion.csv')
     print('<<<<<<<<<<<',
           'Se descarto a los usuarios que no eligieron',
+          Dont_habeID,
           '>>>>>>>>>')
+
+    return Dont_habeID.index

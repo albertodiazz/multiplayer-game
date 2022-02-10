@@ -1,5 +1,6 @@
 from lib import pd
 from lib import c
+from lib.utilidades import handle_json
 
 
 def resetSesion():
@@ -11,6 +12,14 @@ def resetSesion():
     # NOTA: al realizar cambios en los atributos de Personajes.csv tienes
     # que revizar que sean los mismo a los de la classe
     # del jugador.
+
+    # Reseteamos el Json
+    handle_json.reset()
+    # Aqui reseteamos queue y thread
+    c.THREADS_CRONOMETRO = False
+    c.CRONOMETRO = 'STOP'
+    # work_queue.get()
+
     resetGlobal = {
         'level': 0,
         'players': [],
@@ -25,6 +34,7 @@ def resetSesion():
     info_sesion = pd.read_csv(c.DIR_DATA+"info_sesion.csv", index_col=0)
     info_sesion.SeleccionID = ''
     info_sesion.StatusConfirmacion = ''
+    info_sesion.TipoDeUsuario = 'user'
     info_sesion.to_csv(c.DIR_DATA+"info_sesion.csv")
 
     personajes = pd.read_csv(c.DIR_DATA+"Personajes.csv", index_col=0)

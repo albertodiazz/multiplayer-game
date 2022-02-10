@@ -76,6 +76,23 @@ def on_disconnect():
         deletUser.delete(flask.request.sid)
         print('\n', '<<<<<<<< Alguien se deconecto >>>>>>>')
         print(flask.request.sid)
+        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        try:
+            c.DATA_TO_FRONT['players'].remove(flask.request.sid)
+        except ValueError:
+            # No existe en la lista
+            pass
+        try:
+            c.DATA_TO_FRONT['characters'].remove(flask.request.sid)
+        except ValueError:
+            # No existe en la lista
+            pass
+        emit(c.SERVER_LEVEL,
+             json.dumps(c.DATA_TO_FRONT, indent=4),
+             broadcast=True)
+        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     except TypeError:
         app.logger.info('No hay conexion con el servidor')
         disconnect()
@@ -263,7 +280,7 @@ def momentos_retos_confirmaciones(jsonMsg):
                       'Wait Event is running', ' >>>>>>>>>')
             else:
                 print('<<<<<<<< Wait Moments >>>>>>>>>')
-                _waitMoments_ = threading.Thread(target=waitMoments.wait_momentos_retos, # noqa
+                _waitMoments_ = threading.Thread(target=copy_current_request_context(waitMoments.wait_momentos_retos), # noqa
                                                  args=(msg['name'],
                                                        msg['type']))
                 _waitMoments_.start()
@@ -297,7 +314,7 @@ def adelante_atras(jsonMsg):
                 print('<<<<<<<< Wait Moments >>>>>>>>>')
                 # [Aqui hacemos la logica de comparacion de respuestas
                 # y logica de preguntas iguales y asi]
-                _waitMoments_ = threading.Thread(target=waitMoments.wait_momentos_retos, # noqa
+                _waitMoments_ = threading.Thread(target=copy_current_request_context(waitMoments.wait_momentos_retos), # noqa
                                                  args=(msg['name'],
                                                        msg['type'],
                                                        msg['cambioNivel']))
@@ -309,12 +326,43 @@ def adelante_atras(jsonMsg):
     return
 
 
-def nivel_final():
+@socketio.on('/sesion/exit')
+def nivel_final(jsonMsg):
     # PENDIENTE [En el nivel final solo existe un boton
     # el primero que presione el boton activa un cronometro
-    # al terminar el cronometro nos envia al principio de la app
-    # y resetea toda la app]
-    return
+    # al terminar o confirmar todos el cronometro nos envia
+    # al principio de la app y resetea toda la app]
+    try:
+        msg = json.loads(jsonMsg)
+        if len(msg['type']) >= 0:
+            ''' Aqui ejecutamos la funcion '''
+            _cronometro_ = threading.Thread(target=cronometro.temporizador,
+                                            args=(c.TIME_SECONDS,
+                                                  work_queue))
+            handle_json.add_confirmaciones_automatic(nivel_name=msg['name'],
+                                                     mode=msg['type'])
+            # GLOBAL
+            if c.THREADS_CRONOMETRO:
+                # Revizamos que no este corriendo el Thread
+                print('<<<<<<<<<<<<<<<<< ',
+                      'Cronometro is running', ' >>>>>>>>>')
+            else:
+                _cronometro_.start()
+                print('<<<<<<<< Wait Moments >>>>>>>>>')
+                _waitMoments_ = threading.Thread(target=copy_current_request_context(waitMoments.wait_exit_sesion), # noqa
+                                                 args=(msg['name'],))
+                # GLOBAL
+                c.THREADS_CRONOMETRO = _cronometro_.isAlive()
+                _waitMoments_.start()
+                print('<<<<<<<<<<<<<<<<< ',
+                      'Start Cronometro / Wait Moments: ',
+                      c.THREADS_CRONOMETRO, ' >>>>>>>>>>>>>')
+        else:
+            raise SocketIOEventos({
+                'userSeleccion': 'no recivimos el ID del participante'
+                })
+    except TypeError:
+        return
 
 
 @socketio.on('/player/changeStatus')
@@ -368,13 +416,10 @@ def resetAll(jsonMsg):
     try:
         msg = json.loads(jsonMsg)
         if len(msg['ID']) >= 0:
-            # Reseteamos el Json
-            handle_json.reset()
-            # Aqui reseteamos Personajes.csv
             reset.resetSesion()
-            # Aqui reseteamos queue y thread
-            c.THREADS_CRONOMETRO = False
-            # work_queue.get()
+            emit(c.SERVER_LEVEL,
+                 json.dumps(c.DATA_TO_FRONT, indent=4),
+                 broadcast=True)
             app.logger.info({'userStart': {'ID': msg['ID']}})
         else:
             raise SocketIOEventos({
