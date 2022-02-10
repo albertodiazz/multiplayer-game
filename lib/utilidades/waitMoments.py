@@ -300,7 +300,6 @@ def wait_momentos_retos(nivel_name,
         'respuestas': '',
         'respuestaCorrecta': ''
     }
-    # FIRE EMITS
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     c.DATA_TO_FRONT['respuestas'] = ''

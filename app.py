@@ -190,8 +190,6 @@ def userSeleccion(jsonMsg):
         if len(msg['ID']) >= 0:
             if len(msg['seleccion']) >= 2:
                 ''' Aqui ejecutamos la funcion '''
-                # PENDIENTE aqui el cronometro empieza desde el principio
-                # antes de que le presionen al boton
                 players = pd.read_csv(c.DIR_DATA+'info_sesion.csv',
                                       index_col=0)
                 seleccion = int(msg['seleccion'][0])
@@ -233,7 +231,6 @@ def userSeleccion(jsonMsg):
 
 @socketio.on('/actividades')
 def momentos_retos_confirmaciones(jsonMsg):
-    # FIRE EMITS
     # [Hay un nivel en especifico que tiene dos opciones,
     # de avanzar al siguiente nivel o retroceder]
     try:
@@ -278,7 +275,6 @@ def momentos_retos_confirmaciones(jsonMsg):
 
 @socketio.on('/nivel/cambiar')
 def adelante_atras(jsonMsg):
-    # FIRE EMITS
     try:
         msg = json.loads(jsonMsg)
         if len(msg['type']) >= 0:
@@ -309,10 +305,6 @@ def adelante_atras(jsonMsg):
 
 @socketio.on('/sesion/exit')
 def nivel_final(jsonMsg):
-    # PENDIENTE [En el nivel final solo existe un boton
-    # el primero que presione el boton activa un cronometro
-    # al terminar o confirmar todos el cronometro nos envia
-    # al principio de la app y resetea toda la app]
     try:
         msg = json.loads(jsonMsg)
         if len(msg['type']) >= 0:
@@ -352,7 +344,6 @@ def change_player_to_user(jsonMsg):
         esto significa que pasara de ser un jugador a un
         usuario nada mas]
     """
-    # TEST
     try:
         msg = json.loads(jsonMsg)
         if len(msg['ID']) >= 0:
@@ -393,7 +384,6 @@ def change_player_to_user(jsonMsg):
 
 @socketio.on('/sesion/resetAll')
 def resetAll(jsonMsg):
-    # FIRE EMITS
     try:
         msg = json.loads(jsonMsg)
         if len(msg['ID']) >= 0:

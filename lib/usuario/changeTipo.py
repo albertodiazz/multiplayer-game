@@ -23,8 +23,6 @@ def change_to_player(_ID_):
 
 
 def change_to_user(_ID_):
-    # Aqui cambiamos el tipo de usuario a user
-    # TEST: falta testear
     player = pd.read_csv(c.DIR_DATA+'info_sesion.csv', index_col=0)
 
     try:
