@@ -411,6 +411,7 @@ def wait_momentos_retos(nivel_name,
                         c.THREADS_CRONOMETRO = False
                         dataOut['respuestas'] = 'diferentes'
                         handle_json.reset_confirmaciones(nivel_name, mode)
+                        handle_json.reset_respuestas(nivel_name, mode)
                         return dataOut
                         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
             else:
@@ -445,7 +446,7 @@ def wait_exit_sesion(nivel_name,
             # Players confirmaciones
             open_json = open(c.DIR_DATA+"to_front.json")
             confirmaciones = json.load(open_json)
-            num_Confir = confirmaciones['Momentos'][nivel_name]['confirmacion']
+            num_Confir = confirmaciones[mode][nivel_name]['confirmacion']
 
             # Player por sesion
             # NOTA [en la funcion de confirmacion characters
@@ -483,6 +484,43 @@ def wait_exit_sesion(nivel_name,
                   'Cronometro Stop from Wait Players',
                   '>>>>>>>>>>>>>>>>>>>>>>>>>')
             resetAll.resetSesion()
+            emit(c.SERVER_LEVEL,
+                 json.dumps(c.DATA_TO_FRONT, indent=4),
+                 broadcast=True)
+            break
+
+
+def wait_popup(nivel_name,
+               mode='Momentos'):
+    while True:
+        # Players confirmaciones
+        open_json = open(c.DIR_DATA+"to_front.json")
+        confirmaciones = json.load(open_json)
+        num_Confir = confirmaciones[mode][nivel_name]['confirmacion']
+
+        # Player por sesion
+        # NOTA [en la funcion de confirmacion characters
+        # solo ocupo al inicio el get_player, ya que al
+        # cambiar el status de algun player a user el front
+        # actualiza una varible global, en change status]
+        players_sesion = numeroJugadores.get_players()
+        num_players = len(players_sesion.index)
+        # Lo revizamos cada segundo un vez que fue llamado
+        print('PopUp', num_Confir)
+        time.sleep(1)
+        open_json.close()
+        if num_Confir >= num_players:
+            print('<<<<<<<<<<<<<<<<<<<<<<<<',
+                  'Confirmaron todos los jugadores',
+                  '>>>>>>>>>>>>>>>>>>>>>>>>>')
+            # GLOBAL
+            ##############################
+            # Cambiamos de nivel
+            ##############################
+            c.DATA_TO_FRONT['respuestas'] = ''
+            handle_json.reset_confirmaciones(nivel_name, mode)
+            handle_json.reset_respuestas(nivel_name, mode)
+            c.THREADS_CRONOMETRO = False
             emit(c.SERVER_LEVEL,
                  json.dumps(c.DATA_TO_FRONT, indent=4),
                  broadcast=True)

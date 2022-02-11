@@ -15,6 +15,7 @@
             <button id='btn-nivelInstrucciones' type="button" >Instrucciones</button>
             <button id='btn-retoA' type="button" >RetoA</button>
             <button id='btn-retoB' type="button" >RetoB</button>
+            <button id='btn-popup' type="button" >PopUp</button>
 
             <button id='btn-leaveGame' type="button" >Leave Game</button>
             <button id='btn-ExitGame' type="button" >Exit Game</button>
@@ -115,6 +116,13 @@
                     }
                     socket.emit("/actividades",JSON.stringify(msg))
                 }
+                function popup(){
+                    let msg = {
+                        'type' : 'Retos',
+                        'name' : 'nivel7'
+                    }
+                    socket.emit("/popup",JSON.stringify(msg))
+                }
                 //////////////////////////////////////////
                 //////////////////////////////////////////
                 function leaveGame(){
@@ -154,6 +162,7 @@
                 document.getElementById('btn-nivelInstrucciones').onclick = nivelInstrucciones
                 document.getElementById('btn-retoA').onclick = retoA
                 document.getElementById('btn-retoB').onclick = retoB
+                document.getElementById('btn-popup').onclick = popup
                 document.getElementById('btn-leaveGame').onclick = leaveGame
                 document.getElementById('btn-ExitGame').onclick = exitGame
                 document.getElementById('btn-startCronometro').onclick = startCronometro

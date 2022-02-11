@@ -110,6 +110,18 @@ def reset_confirmaciones(nivel_name, mode='Momentos'):
     open_json.close()
 
 
+def reset_respuestas(nivel_name, mode='Momentos'):
+    open_json = open(c.DIR_DATA+"to_front.json")
+    confirmaciones = json.load(open_json)
+    confirmaciones[mode][nivel_name]['respuestas'] = ''
+
+    with open(c.DIR_DATA+"to_front.json", 'w') as f:
+        json.dump(confirmaciones, f)
+        f.close()
+
+    open_json.close()
+
+
 def reset():
     open_reset = open(c.DIR_DATA+"to_front_RESET.json")
     to_front = json.load(open_reset)

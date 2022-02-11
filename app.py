@@ -323,12 +323,46 @@ def nivel_final(jsonMsg):
                 _cronometro_.start()
                 print('<<<<<<<< Wait Moments >>>>>>>>>')
                 _waitMoments_ = threading.Thread(target=copy_current_request_context(waitMoments.wait_exit_sesion), # noqa
-                                                 args=(msg['name'],))
+                                                 args=(msg['name'],
+                                                       msg['type'],))
                 # GLOBAL
                 c.THREADS_CRONOMETRO = _cronometro_.isAlive()
                 _waitMoments_.start()
                 print('<<<<<<<<<<<<<<<<< ',
                       'Start Cronometro / Wait Moments: ',
+                      c.THREADS_CRONOMETRO, ' >>>>>>>>>>>>>')
+        else:
+            raise SocketIOEventos({
+                'userSeleccion': 'no recivimos el ID del participante'
+                })
+    except TypeError:
+        return
+
+
+@socketio.on('/popup')
+def popUp_confirmacion(jsonMsg):
+    try:
+        msg = json.loads(jsonMsg)
+        if len(msg['type']) >= 0:
+            ''' Aqui ejecutamos la funcion '''
+
+            handle_json.add_confirmaciones_automatic(nivel_name=msg['name'],
+                                                     mode=msg['type'])
+            # GLOBAL
+            if c.THREADS_CRONOMETRO:
+                # Revizamos que no este corriendo el Thread
+                print('<<<<<<<<<<<<<<<<< ',
+                      'Wait Moments is running', ' >>>>>>>>>')
+            else:
+                print('<<<<<<<< Wait Moments >>>>>>>>>')
+                _waitMoments_ = threading.Thread(target=copy_current_request_context(waitMoments.wait_popup), # noqa
+                                                 args=(msg['name'],
+                                                       msg['type'],))
+                # GLOBAL
+                _waitMoments_.start()
+                c.THREADS_CRONOMETRO = _waitMoments_.isAlive()
+                print('<<<<<<<<<<<<<<<<< ',
+                      'Wait Moments: ',
                       c.THREADS_CRONOMETRO, ' >>>>>>>>>>>>>')
         else:
             raise SocketIOEventos({
