@@ -3,10 +3,7 @@
 BUG : al momento de comparar los ID, si el fron manda null no ocurre nada y
 tampoco se levanta el raise
 '''
-from statistics import mode
 import threading
-
-from numpy import broadcast
 import flask
 from lib import SocketIO, disconnect, emit
 from lib import Flask
@@ -25,9 +22,11 @@ from lib import waitMoments
 from lib import handle_json
 from lib import updateModoDeJuego
 from lib import personajesArray
+from lib import CORS
 
 app = Flask(__name__, template_folder=c.DIR_INDEX)
-socketio = SocketIO(app, async_mode=c.ASYNC_MODE)
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode=c.ASYNC_MODE)
+CORS(app)
 
 work_queue = queue.Queue()
 

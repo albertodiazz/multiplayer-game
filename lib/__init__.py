@@ -4,6 +4,7 @@ from flask import Flask # noqa
 from flask_socketio import SocketIO, emit # noqa
 from flask_socketio import disconnect # noqa
 from flask import copy_current_request_context # noqa
+from flask_cors import CORS # noqa
 
 import json # noqa
 import pandas as pd # noqa
