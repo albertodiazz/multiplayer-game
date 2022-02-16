@@ -7,7 +7,7 @@ ASYNC_MODE = None
 # Aqui seteamos si queremos usar el index html
 INDEX_MODE = True
 # Aqui es donde tenemos almacenado el index HTML
-DIR_INDEX = 'D:/trabajo/cocay/ramodelacion_Mide/radioGrafia_BancoCentral/Backend/lib/socketIO/frontTest/' # noqa
+DIR_INDEX = '/mnt/d/trabajo/cocay/ramodelacion_Mide/radioGrafia_BancoCentral/Backend/lib/socketIO/frontTest/' # noqa
 # Aqui seteamos el url de la carpeta data
 DIR_DATA = 'data/'
 SERVER_LEVEL = 'server:level'
