@@ -51,7 +51,7 @@ def add_confirmaciones_automatic(nivel_name, mode='Momentos'):
     open_json = open(c.DIR_DATA+"to_front.json")
     confirmaciones = json.load(open_json)
     count_confir = 0
-
+    print(mode, nivel_name)
     count_confir = int(confirmaciones[mode][nivel_name]['confirmacion']) + 1 # noqa
     confirmaciones[mode][nivel_name]['confirmacion'] = count_confir
 

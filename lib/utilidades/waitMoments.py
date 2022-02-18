@@ -304,9 +304,10 @@ def wait_momentos_retos(nivel_name,
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     c.DATA_TO_FRONT['respuestas'] = ''
     c.DATA_TO_FRONT['respuestasCorrectas'] = 'false'
-    emit(c.SERVER_LEVEL,
-         json.dumps(c.DATA_TO_FRONT, indent=4),
-         broadcast=True)
+    # BUG : [Esto ocasiona un bug]
+    # emit(c.SERVER_LEVEL,
+    #      json.dumps(c.DATA_TO_FRONT, indent=4),
+    #      broadcast=True)
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     while True:

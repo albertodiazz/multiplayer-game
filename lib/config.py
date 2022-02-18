@@ -54,9 +54,9 @@ DATA_TO_FRONT = {
 # Temporizador para seleccionar personajes
 TIME_SECONDS = 30
 # Temporizador para unirse al juego
-JOIN_SECONDS = 10
+JOIN_SECONDS = 3
 # Segundos de momentos
-MOMENTOS_SECONDS = 10
+MOMENTOS_SECONDS = 3
 ####################################
 ''' Niveles '''
 # Cantindad maxima de jugadores. La app no tiene un limite

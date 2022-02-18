@@ -1,8 +1,4 @@
 
-'''
-BUG : al momento de comparar los ID, si el fron manda null no ocurre nada y
-tampoco se levanta el raise
-'''
 import threading
 import flask
 from lib import SocketIO, disconnect, emit
@@ -193,13 +189,12 @@ def userSeleccion(jsonMsg):
                                       index_col=0)
                 seleccion = int(msg['seleccion'][0])
 
-                if msg['seleccion'][1] == 'True':
+                if msg['seleccion'][1].strip() == 'True':
                     # No han mandado confirmacion
                     funcionesJugador.seleccionDePersonaje(msg['ID'],
                                                           seleccion,
                                                           players,
                                                           True)
-
                 else:
                     funcionesJugador.seleccionDePersonaje(msg['ID'],
                                                           seleccion,
@@ -276,7 +271,16 @@ def momentos_retos_confirmaciones(jsonMsg):
 def adelante_atras(jsonMsg):
     try:
         msg = json.loads(jsonMsg)
+
+        print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',
+            'Estamos en nivel cambiar',
+            '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',
+            c.THREADS_CRONOMETRO,
+            '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',
+            msg)
+
         if len(msg['type']) >= 0:
+            # BUG [nivel empezamos tiene un pedo]
             # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
             handle_json.add_confirmaciones_automatic(nivel_name=msg['name'], # noqa
                                                      mode=msg['type'])
@@ -340,6 +344,7 @@ def nivel_final(jsonMsg):
 
 @socketio.on('/popup')
 def popUp_confirmacion(jsonMsg):
+    # print(flask.request.sid)
     try:
         msg = json.loads(jsonMsg)
         if len(msg['type']) >= 0:

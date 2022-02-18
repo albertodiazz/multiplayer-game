@@ -10,7 +10,7 @@ def read_data():
     players = numeroJugadores.get_players()
     get_NoDisponibles = characters.loc[characters.Disponible == 'No'].index
     get_Disponibles = characters.drop(get_NoDisponibles)
-    # BUG [si pasamos a una tabla donde solo existan users esta funcion
+    # NOTA [si pasamos a una tabla donde solo existan users esta funcion
     # nos marcara un error]
     Dont_habeID = players.iloc[players.SeleccionID.isnull().values]
     HabeID_pendientes = players.loc[players.StatusConfirmacion == 'pendiente']

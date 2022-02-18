@@ -23,6 +23,7 @@
             <button id='btn-startCronometro' type="button" >Start Cronometro</button>
 
             <button id='btn-resetAll' type="button" >Reset All</button>
+            <button id='btn-cambiarNivel' type="button" >Cambiar Nivel</button>
 
             <script >
 
@@ -82,7 +83,7 @@
                         'name': 'nivel2',
                         'seleccion' : [
                          x.toString(),
-                            'True'
+                         'True'
                         ]
                     }
                     socket.emit("/player/seleccion",JSON.stringify(msg))
@@ -98,6 +99,16 @@
                     }
                     socket.emit("/nivel/cambiar",JSON.stringify(msg))
                 }
+
+                function nivelCambiar(){
+                    let msg = {
+                        'type' : 'Retos', // 'Retos'
+                        'name' : 'nivel10',
+                        'cambioNivel': 'adelante' // 'atras'
+                    }
+                    socket.emit("/nivel/cambiar",JSON.stringify(msg))
+                }
+
 
                 function retoA(){
                     let msg = {
@@ -167,6 +178,7 @@
                 document.getElementById('btn-ExitGame').onclick = exitGame
                 document.getElementById('btn-startCronometro').onclick = startCronometro
                 document.getElementById('btn-resetAll').onclick = resetAll
+                document.getElementById('btn-cambiarNivel').onclick = nivelCambiar
             </script>
         </body>
 </html>
