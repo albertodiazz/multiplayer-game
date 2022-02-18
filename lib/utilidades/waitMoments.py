@@ -328,11 +328,12 @@ def wait_momentos_retos(nivel_name,
         time.sleep(1)
         open_json.close()
 
+        nivel_especial = 'nivel4'
         if num_Confir >= num_players:
             print('<<<<<<<<<<<<<<<<<<<<<<<<',
                   'Confirmaron todos los jugadores',
                   '>>>>>>>>>>>>>>>>>>>>>>>>>')
-            if cambioNivel == 'No':
+            if cambioNivel == 'No' or nivel_name == nivel_especial:
                 lista = confirmaciones[mode][nivel_name]['respuestas']
                 print(lista)
                 respuestaCorrecta = confirmaciones[mode][nivel_name]['respuestaCorrecta'] # noqa
@@ -345,14 +346,31 @@ def wait_momentos_retos(nivel_name,
                               '>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
                         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-                        c.DATA_TO_FRONT['respuestas'] = 'iguales'
-                        emit(c.SERVER_LEVEL,
-                             json.dumps(c.DATA_TO_FRONT, indent=4),
-                             broadcast=True)
-                        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-                        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-                        dataOut['respuestas'] = 'iguales'
-                        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                        if nivel_name != nivel_especial:
+                            c.DATA_TO_FRONT['respuestas'] = 'iguales'
+                            emit(c.SERVER_LEVEL,
+                                json.dumps(c.DATA_TO_FRONT, indent=4),
+                                broadcast=True)
+                            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                            dataOut['respuestas'] = 'iguales'
+                            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                        if nivel_name == nivel_especial:
+                            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                            c.THREADS_CRONOMETRO = False
+                            dataOut['confirmaron'] = True
+                            handle_json.reset_confirmaciones(nivel_name, mode)
+                            posicion = eventosJuego.reto_nivel_check(nivel_name)
+                            print('Cambiamos el nivel a: ', posicion[cambioNivel])
+                            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                            c.DATA_TO_FRONT['level'] = posicion[cambioNivel]
+                            emit(c.SERVER_LEVEL,
+                                json.dumps(c.DATA_TO_FRONT, indent=4),
+                                broadcast=True)
+                            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
                         if np.all(np.array(lista) == respuestaCorrecta):
                             print('<<<<<<<<<<<<<<<<<<<<<<<<<',
                                   'TODAS SON CORRECTAS',
@@ -368,7 +386,8 @@ def wait_momentos_retos(nivel_name,
                             # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                             # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                             c.DATA_TO_FRONT['respuestasCorrectas'] = 'true'
-                            c.DATA_TO_FRONT['respuestasFinales'].append('true')
+                            if nivel_name != nivel_especial:
+                                c.DATA_TO_FRONT['respuestasFinales'].append('true')
                             emit(c.SERVER_LEVEL,
                                  json.dumps(c.DATA_TO_FRONT, indent=4),
                                  broadcast=True)
@@ -390,7 +409,8 @@ def wait_momentos_retos(nivel_name,
                             # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                             # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                             c.DATA_TO_FRONT['respuestasCorrectas'] = 'false'
-                            c.DATA_TO_FRONT['respuestasFinales'].append('false') # noqa
+                            if nivel_name != nivel_especial:
+                                c.DATA_TO_FRONT['respuestasFinales'].append('false') # noqa
                             emit(c.SERVER_LEVEL,
                                  json.dumps(c.DATA_TO_FRONT, indent=4),
                                  broadcast=True)

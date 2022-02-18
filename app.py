@@ -225,8 +225,6 @@ def userSeleccion(jsonMsg):
 
 @socketio.on('/actividades')
 def momentos_retos_confirmaciones(jsonMsg):
-    # [Hay un nivel en especifico que tiene dos opciones,
-    # de avanzar al siguiente nivel o retroceder]
     try:
         msg = json.loads(jsonMsg)
         if len(msg['type']) >= 0:
@@ -279,8 +277,9 @@ def adelante_atras(jsonMsg):
             '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',
             msg)
 
-        if len(msg['type']) >= 0:
-            # BUG [nivel empezamos tiene un pedo]
+        # NOTA [Importante, hay que cambiar el nivel4 por otro
+        # en el caso que se mueva el orde]
+        if len(msg['type']) >= 0 and msg['name'] != 'nivel4':
             # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
             handle_json.add_confirmaciones_automatic(nivel_name=msg['name'], # noqa
                                                      mode=msg['type'])
@@ -301,6 +300,40 @@ def adelante_atras(jsonMsg):
                 _waitMoments_.start()
                 # GLOBAL
                 c.THREADS_CRONOMETRO = _waitMoments_.isAlive()
+        else:
+            # BUG [el pop up no aparece cuando contestan diferente]
+            # [Estamos en un momento especial, el nivel4, que tiene como
+            # atributo poder ir de adelante atras]
+            print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>',
+                  'Estamos en un momento especial de la App',
+                  '<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
+                  msg)
+            handle_json.add_confirmaciones_automatic(nivel_name=msg['name'],
+                                                     mode=msg['type'])
+            try:
+                # Con msg['respuesta'] levantamos la excepcion
+                print(msg['respuesta'])
+                handle_json.add_respuestas(nivel_name=msg['name'],
+                                           respuestas=msg['respuesta'],
+                                           mode=msg['type'])
+            except KeyError:
+                '''El valor ['respueta'] no esta presente en el JSON'''
+                pass
+
+            if c.THREADS_CRONOMETRO:
+                # Revizamos que no este corriendo el Thread
+                print('<<<<<<<<<<<<<<<<< ',
+                      'Wait Event is running', ' >>>>>>>>>')
+            else:
+                print('<<<<<<<< Wait Moments >>>>>>>>>')
+                _waitMoments_ = threading.Thread(target=copy_current_request_context(waitMoments.wait_momentos_retos), # noqa
+                                                 args=(msg['name'],
+                                                       msg['type'],
+                                                       msg['cambioNivel']))
+                _waitMoments_.start()
+                # GLOBAL
+                c.THREADS_CRONOMETRO = _waitMoments_.isAlive()
+
     except TypeError:
         return
     return
