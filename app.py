@@ -153,7 +153,7 @@ def userUnirme(jsonMsg):
                 _waitMoments_.start()
 
                 # GLOBAL
-                c.THREADS_CRONOMETRO = _waitMoments_.isAlive()
+                c.THREADS_CRONOMETRO = _waitMoments_.is_alive()
             app.logger.info({'userUnirme': {'ID': msg['ID']}})
         else:
             raise SocketIOEventos({
@@ -175,7 +175,7 @@ def userSeleccion(jsonMsg):
               'Cronometro is running', ' >>>>>>>>>')
     else:
         _cronometro_.start()
-        c.THREADS_CRONOMETRO = _cronometro_.isAlive()
+        c.THREADS_CRONOMETRO = _cronometro_.is_alive()
         _waitMoments_ = threading.Thread(target=copy_current_request_context(waitMoments.wait_confirmacion_characters)) # noqa
         _waitMoments_.start()
         print('<<<<<<<<<<<<<<<<< ', 'Start Cronometro: ',
@@ -255,7 +255,7 @@ def momentos_retos_confirmaciones(jsonMsg):
                                                        msg['type']))
                 _waitMoments_.start()
                 # GLOBAL
-                c.THREADS_CRONOMETRO = _waitMoments_.isAlive()
+                c.THREADS_CRONOMETRO = _waitMoments_.is_alive()
 
         else:
             raise SocketIOEventos({
@@ -299,7 +299,7 @@ def adelante_atras(jsonMsg):
                                                        msg['cambioNivel']))
                 _waitMoments_.start()
                 # GLOBAL
-                c.THREADS_CRONOMETRO = _waitMoments_.isAlive()
+                c.THREADS_CRONOMETRO = _waitMoments_.is_alive()
         else:
             # BUG [el pop up no aparece cuando contestan diferente]
             # [Estamos en un momento especial, el nivel4, que tiene como
@@ -332,7 +332,7 @@ def adelante_atras(jsonMsg):
                                                        msg['cambioNivel']))
                 _waitMoments_.start()
                 # GLOBAL
-                c.THREADS_CRONOMETRO = _waitMoments_.isAlive()
+                c.THREADS_CRONOMETRO = _waitMoments_.is_alive()
 
     except TypeError:
         return
@@ -362,7 +362,7 @@ def nivel_final(jsonMsg):
                                                  args=(msg['name'],
                                                        msg['type'],))
                 # GLOBAL
-                c.THREADS_CRONOMETRO = _cronometro_.isAlive()
+                c.THREADS_CRONOMETRO = _cronometro_.is_alive()
                 _waitMoments_.start()
                 print('<<<<<<<<<<<<<<<<< ',
                       'Start Cronometro / Wait Moments: ',
@@ -397,7 +397,7 @@ def popUp_confirmacion(jsonMsg):
                                                        msg['type'],))
                 # GLOBAL
                 _waitMoments_.start()
-                c.THREADS_CRONOMETRO = _waitMoments_.isAlive()
+                c.THREADS_CRONOMETRO = _waitMoments_.is_alive()
                 print('<<<<<<<<<<<<<<<<< ',
                       'Wait Moments: ',
                       c.THREADS_CRONOMETRO, ' >>>>>>>>>>>>>')
