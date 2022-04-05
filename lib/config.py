@@ -21,6 +21,7 @@ SERVER_RESPONSE = 'server:response'
 # Para saber si hay un thread del cronometro corriendo
 # Nos sirve para saber cuando fue incializado en app.py
 THREADS_CRONOMETRO = False
+THREADS_RESET = False
 # Con esta variable sabemos cuando el cronometro esta en
 # STOP/PLAY. Esta variable la solemos utilizar en subfunciones
 # por ejemplo en waitMoments

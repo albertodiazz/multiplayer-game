@@ -477,5 +477,6 @@ def runSocketIO():
 
 
 if __name__ == '__main__':
+    reset.resetSesion()
     print('Inciando App de Radiografias del Banco de Mexico')
     runSocketIO()
